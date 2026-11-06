@@ -1,0 +1,16 @@
+/* PASTE AS: public/css/record.css  (new file)  S13: page header for the medical record. The cards, chips, files and timeline are styled inside js/record.js
+   (so the consult room shares them). Loaded after style.css. Colours come from tokens only. */
+
+/* fill the page: no narrow centred column, only a small side margin */
+.rec-wrap { padding-inline: clamp(1rem, 3vw, 2.5rem); }
+.rec-wrap .rec-col { max-width: none; width: 100%; }
+.rec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem 1.5rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+.rec-head .tag { margin-bottom: .7rem; }
+.rec-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; line-height: 1.12; }
+.rec-sub { color: var(--ink-soft); margin-top: .45rem; max-width: 56ch; }
+.rec-sub:empty { display: none; }
+/* the script sets the back button text, so the arrow is drawn here */
+#rec-back::before { content: ''; width: 18px; height: 18px; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (max-width: 600px) { #rec-back { width: 100%; } }

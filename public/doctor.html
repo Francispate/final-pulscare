@@ -1,65 +1,73 @@
-<!-- PASTE AS: public/doctor.html  (replaces the old file)  Day 10: "Record" link on each consultation. -->
-<!-- PASTE AS: public/doctor.html  (replaces the old file)  Day 6: waiting queue list. Day 5: working hours, booked slots, slot times -->
+<!-- PASTE AS: public/doctor.html  (replaces the old file)  S9: redesigned doctor dashboard. Look and layout only; every id and all logic are unchanged. Needs public/css/dash.css (from S8) and the new public/css/doctor.css. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My patients | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dash.css">
+  <link rel="stylesheet" href="/css/doctor.css">
 </head>
 <body>
 <div id="chrome"></div>
 <main class="wrap">
-  <div class="card row spread" style="margin-bottom:1.1rem">
+  <div class="dash-head">
     <div>
-      <h1 style="font-size:1.7rem" id="hello">Doctor</h1>
-      <p class="muted" id="online-text">You are offline. Patients cannot send you requests.</p>
+      <span class="tag">My patients</span>
+      <h1 class="dash-title" id="hello">Doctor</h1>
+      <p class="dash-sub" id="online-text">You are offline. Patients cannot send you requests.</p>
     </div>
-    <div class="row"><span class="small muted">Go online</span><button class="switch" id="online-switch" role="switch" aria-checked="false" aria-label="Go online"></button></div>
+    <div class="online-box">
+      <div class="ob-text"><b id="online-label">You are offline</b><span>Go online to receive requests</span></div>
+      <button class="switch" id="online-switch" role="switch" aria-checked="false" aria-label="Go online"></button>
+    </div>
   </div>
 
   <div id="dbanner"></div>
 
-  <div id="lang-card" style="margin-bottom:1.1rem"></div>
+  <div id="lang-card" style="margin-bottom:1.2rem"></div>
 
-  <div class="grid two" style="margin-bottom:1.1rem">
-    <section class="card">
-      <h2>My working hours</h2>
-      <p class="small muted">Patients book slots inside these hours (Indian Standard Time). Saving rebuilds your free slots for the next 7 days. Slots that are already booked are never removed.</p>
-      <div class="small" style="font-weight:600;margin:.6rem 0 .3rem">Working days</div>
-      <div class="row" id="sch-days" style="flex-wrap:wrap;gap:.4rem"></div>
-      <div class="grid two" style="margin-top:.8rem;gap:.7rem">
-        <div class="field" style="margin:0"><label class="small" for="sch-start"><b>Start</b></label><input type="time" id="sch-start" value="09:00"></div>
-        <div class="field" style="margin:0"><label class="small" for="sch-end"><b>End</b></label><input type="time" id="sch-end" value="17:00"></div>
-      </div>
-      <div class="field" style="margin:.8rem 0 0"><label class="small" for="sch-len"><b>Slot length</b></label>
-        <select id="sch-len"></select></div>
-      <div class="row" style="margin-top:.9rem"><button class="btn btn-primary btn-sm" id="sch-save">Save working hours</button></div>
-      <div class="msg" id="sch-msg"></div>
-    </section>
-    <section class="card">
-      <h2>Booked slots</h2>
-      <div class="small muted" id="slot-free"></div>
-      <div id="booked"><p class="muted small">Loading...</p></div>
-    </section>
+  <div class="dgrid">
+    <div class="dcol">
+      <section class="card">
+        <div class="card-head"><h2>Incoming requests</h2><span class="count" id="req-count">0</span></div>
+        <div id="queue"><p class="muted small">Nobody is waiting. New requests appear here the moment a patient sends them.</p></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>Waiting queue</h2><span class="count" id="wq-count">0</span></div>
+        <p class="small muted" style="margin-bottom:.7rem">Patients who asked while you were in a call. When you end a call, the first one is alerted automatically and has 2 minutes to join.</p>
+        <div id="wq"><p class="muted small">No one is waiting.</p></div>
+      </section>
+    </div>
+
+    <div class="dcol">
+      <section class="card">
+        <div class="card-head"><h2>My working hours</h2></div>
+        <p class="small muted">Patients book slots inside these hours (Indian Standard Time). Saving rebuilds your free slots for the next 7 days. Slots that are already booked are never removed.</p>
+        <div class="small" style="font-weight:700;margin:.8rem 0 .1rem">Working days</div>
+        <div class="day-row" id="sch-days" role="group" aria-label="Working days"></div>
+        <div class="sch-times">
+          <div class="field"><label class="small" for="sch-start"><b>Start</b></label><input type="time" id="sch-start" value="09:00"></div>
+          <div class="field"><label class="small" for="sch-end"><b>End</b></label><input type="time" id="sch-end" value="17:00"></div>
+        </div>
+        <div class="sch-len"><div class="field"><label class="small" for="sch-len"><b>Slot length</b></label>
+          <select id="sch-len"></select></div></div>
+        <div class="sch-save"><button class="btn btn-primary" id="sch-save">Save working hours</button></div>
+        <div class="msg" id="sch-msg" role="status"></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>Booked slots</h2></div>
+        <div class="slot-free" id="slot-free"></div>
+        <div id="booked"><p class="muted small">Loading...</p></div>
+      </section>
+    </div>
   </div>
 
-  <div class="grid two">
-    <section class="card">
-      <h2>Incoming requests</h2>
-      <div id="queue"><p class="muted small">Nobody is waiting. New requests appear here the moment a patient sends them.</p></div>
-      <h2 style="margin-top:1.4rem">Waiting queue</h2>
-      <p class="small muted">Patients who asked while you were in a call. When you end a call, the first one is alerted automatically and has 2 minutes to join.</p>
-      <div id="wq"><p class="muted small">No one is waiting.</p></div>
-      <div class="note-final"><b>Final version:</b> email and SMS alerts when you are away from the screen.</div>
-    </section>
-    <section class="card">
-      <h2>Consultations</h2>
-      <div id="appts"><p class="muted small">Loading...</p></div>
-    </section>
-  </div>
+  <h2 class="sec-title">Consultations</h2>
+  <div id="appts"><p class="muted small">Loading...</p></div>
 </main>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -73,9 +81,17 @@
   const sock = PC.socket();
   let online = false, queue = [], myLangs = [];
 
+  const IC_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+  const initials = (name) => {
+    const parts = String(name || '').replace(/^dr\.?\s+/i, '').trim().split(/\s+/).filter(Boolean);
+    return ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  };
+  const setCount = (id, n) => { const c = document.getElementById(id); c.textContent = n; c.classList.toggle('hot', n > 0); };
+
   function paintOnline() {
     const sw = document.getElementById('online-switch');
     sw.classList.toggle('on', online); sw.setAttribute('aria-checked', online);
+    document.getElementById('online-label').textContent = online ? 'You are online' : 'You are offline';
     document.getElementById('online-text').textContent = online
       ? 'You are online. Patients can see the green badge and send requests.' : 'You are offline. Patients cannot send you requests.';
   }
@@ -89,7 +105,7 @@
   const fmtFull = (iso) => new Date(iso).toLocaleString('en-IN', { timeZone: IST, weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
   const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-IN', { timeZone: IST, hour: 'numeric', minute: '2-digit' });
   const DAY_ORDER = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [0, 'Sun']];
-  document.getElementById('sch-days').innerHTML = DAY_ORDER.map(([n, t]) => `<label class="chip" style="display:flex;gap:.4rem;align-items:center;padding:.4rem .7rem;cursor:pointer"><input type="checkbox" style="width:auto" value="${n}"> ${t}</label>`).join('');
+  document.getElementById('sch-days').innerHTML = DAY_ORDER.map(([n, t]) => `<label class="day-chk"><input type="checkbox" value="${n}" aria-label="${t}"><span>${t}</span></label>`).join('');
   document.getElementById('sch-len').innerHTML = [5, 10, 15, 20, 30, 45, 60].map((m) => `<option value="${m}">${m} minutes</option>`).join('');
   const schMsg = (t, k) => { const m = document.getElementById('sch-msg'); m.textContent = t || ''; m.className = 'msg ' + (k || ''); };
 
@@ -113,25 +129,39 @@
     document.getElementById('slot-free').textContent = `${r.freeCount} free slot(s) still open in the next 7 days.`;
     const el = document.getElementById('booked');
     if (!r.booked.length) { el.innerHTML = '<p class="muted small">No booked slots yet. When a patient books, it appears here live.</p>'; return; }
-    el.innerHTML = '<table><tbody>' + r.booked.map((b) => {
+    el.innerHTML = '<div class="slot-list">' + r.booked.map((b) => {
       const canCancel = new Date(b.startsAt).getTime() > Date.now() && b.status === 'booked';
-      return `<tr><td><b>${PC.esc(fmtFull(b.startsAt))}</b><div class="small muted">${PC.esc(b.patientName)}${b.reason ? ' · ' + PC.esc(b.reason) : ''}</div></td>
-        <td>${canCancel ? `<button class="btn btn-ghost btn-sm" data-cancel="${b.slotId}">Cancel</button>` : ''}</td></tr>`;
-    }).join('') + '</tbody></table>';
+      return `<div class="slot-row"><div><b>${PC.esc(fmtFull(b.startsAt))}</b><div class="small muted">${PC.esc(b.patientName)}${b.reason ? ' · ' + PC.esc(b.reason) : ''}</div></div>
+        ${canCancel ? `<button class="btn btn-ghost btn-sm" data-cancel="${b.slotId}">Cancel</button>` : ''}</div>`;
+    }).join('') + '</div>';
     el.querySelectorAll('[data-cancel]').forEach((b) => b.addEventListener('click', async () => {
       if (!confirm('Cancel this booking? The patient will be told and the slot is removed.')) return;
       try { await PC.api('POST', `/slots/${b.dataset.cancel}/cancel`); loadBooked(); loadAppts(); } catch (e) { alert(e.message); loadBooked(); }
     }));
   }
 
+  // Language chips for a patient; the ones you also speak are highlighted
+  function patientChips(pl) {
+    const m = PCLang.match(pl, myLangs);
+    return (pl || []).map((l) => `<span class="lc ${m.common.some((c) => c.toLowerCase() === String(l).toLowerCase()) ? 'match' : ''}">${PC.esc(l)}</span>`).join('');
+  }
+
   function renderQueue() {
     const q = document.getElementById('queue');
+    setCount('req-count', queue.length);
     if (!queue.length) { q.innerHTML = '<p class="muted small">Nobody is waiting. New requests appear here the moment a patient sends them.</p>'; return; }
-    q.innerHTML = queue.map((r) => `<div class="banner wait" style="margin-top:.6rem">
-      <div class="row spread"><div><b>${PC.esc(r.patientName)}</b><div class="small">${PC.esc(r.symptoms || 'No symptoms listed')}</div>
-        ${(r.patientLanguages || []).length ? `<div class="small"><b>Patient speaks:</b> ${PC.esc(r.patientLanguages.join(' + '))}${PCLang.match(r.patientLanguages, myLangs).any ? ' · <span style="color:var(--teal-dark);font-weight:700">you share ' + PC.esc(PCLang.match(r.patientLanguages, myLangs).common.join(' + ')) + '</span>' : ' · <span style="color:var(--coral)">no shared language, use typed captions</span>'}</div>` : ''}</div>
-      <div class="row"><button class="btn btn-primary btn-sm" data-act="accept" data-id="${r.id}">Accept</button>
-      <button class="btn btn-ghost btn-sm" data-act="reject" data-id="${r.id}">Decline</button></div></div></div>`).join('');
+    q.innerHTML = '<div class="req-list">' + queue.map((r) => {
+      const pl = r.patientLanguages || [];
+      const m = PCLang.match(pl, myLangs);
+      const note = pl.length
+        ? (m.any ? `<div class="req-note ok">You share ${PC.esc(m.common.join(' + '))}</div>` : '<div class="req-note no">No shared language, use typed captions</div>') : '';
+      return `<article class="req">
+        <span class="av" aria-hidden="true">${PC.esc(initials(r.patientName))}</span>
+        <div class="req-main"><b>${PC.esc(r.patientName)}</b><div class="req-why">${PC.esc(r.symptoms || 'No symptoms listed')}</div>
+          ${pl.length ? `<div class="lchips" aria-label="Patient speaks">${patientChips(pl)}</div>` : ''}${note}</div>
+        <div class="req-actions"><button class="btn btn-primary btn-sm" data-act="accept" data-id="${r.id}">Accept</button>
+          <button class="btn btn-ghost btn-sm" data-act="reject" data-id="${r.id}">Decline</button></div></article>`;
+    }).join('') + '</div>';
     q.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => respond(b.dataset.id, b.dataset.act === 'accept')));
   }
 
@@ -139,13 +169,15 @@
   let wq = [];
   function renderWq() {
     const el = document.getElementById('wq');
+    setCount('wq-count', wq.length);
     if (!wq.length) { el.innerHTML = '<p class="muted small">No one is waiting.</p>'; return; }
-    el.innerHTML = wq.map((x) => `<div class="banner ${x.status === 'notified' ? 'go' : 'wait'}" style="margin-top:.6rem">
-      <div class="row spread"><div><b>#${x.position} ${PC.esc(x.patientName)}</b>
-        <span class="badge ${x.status === 'notified' ? 'done' : 'pending'}" style="margin-left:.4rem">${x.status === 'notified' ? 'Alerted, waiting for them to join' : 'Waiting'}</span>
-        <div class="small">${PC.esc(x.symptoms || 'No symptoms listed')}</div>
-        ${(x.patientLanguages || []).length ? `<div class="small"><b>Patient speaks:</b> ${PC.esc(x.patientLanguages.join(' + '))}</div>` : ''}</div>
-        <button class="btn btn-ghost btn-sm" data-rm="${x.id}">Remove</button></div></div>`).join('');
+    el.innerHTML = '<div class="wq-list">' + wq.map((x) => `<article class="wq-item ${x.status === 'notified' ? 'go' : ''}">
+        <span class="wq-num" aria-hidden="true">#${x.position}</span>
+        <div class="wq-main"><div class="top"><b>${PC.esc(x.patientName)}</b>
+          <span class="badge ${x.status === 'notified' ? 'done' : 'pending'}">${x.status === 'notified' ? 'Alerted, waiting for them to join' : 'Waiting'}</span></div>
+          <div class="small muted">${PC.esc(x.symptoms || 'No symptoms listed')}</div>
+          ${(x.patientLanguages || []).length ? `<div class="lchips" aria-label="Patient speaks">${patientChips(x.patientLanguages)}</div>` : ''}</div>
+        <button class="btn btn-ghost btn-sm" data-rm="${x.id}">Remove</button></article>`).join('') + '</div>';
     el.querySelectorAll('[data-rm]').forEach((b) => b.addEventListener('click', async () => {
       if (!confirm('Remove this patient from the queue? They will be told.')) return;
       try { await PC.api('POST', `/queue/${b.dataset.rm}/remove`); loadWq(); } catch (e) { alert(e.message); loadWq(); }
@@ -164,8 +196,11 @@
   async function loadAppts() {
     const rows = await PC.api('GET', '/appointments');
     const el = document.getElementById('appts');
-    if (!rows.length) { el.innerHTML = '<p class="muted small">No consultations yet.</p>'; return; }
-    el.innerHTML = '<table><tbody>' + rows.map((a) => {
+    if (!rows.length) {
+      el.innerHTML = `<div class="card empty"><span class="ic">${IC_CAL}</span><h3>No consultations yet</h3><p class="muted">Go online to receive requests. Booked slots appear here too.</p></div>`;
+      return;
+    }
+    el.innerHTML = '<div class="appt-list">' + rows.map((a) => {
       let status, action;
       const rec = `<a class="btn btn-ghost btn-sm" href="/record.html?patient=${encodeURIComponent(a.patient_id)}">Record</a>`;
       if (a.status === 'completed') { status = '<span class="badge done">Paid</span>'; action = `<button class="btn btn-ghost btn-sm" onclick="PC.openDoc('${a.id}','prescription')">Prescription</button> ${rec}`; }
@@ -174,9 +209,15 @@
         status = '<span class="badge pending">Slot booked</span>'; action = `<span class="small muted">Opens ${PC.esc(fmtTime(new Date(new Date(a.slot_starts_at).getTime() - 600000).toISOString()))}</span>`;
       }
       else { status = '<span class="badge pending">Active</span>'; action = `<a class="btn btn-primary btn-sm" href="/consult.html?a=${a.id}">Open room</a> ${rec}`; }
-      const when = a.slot_starts_at ? `<div class="small muted">Slot: ${PC.esc(fmtFull(a.slot_starts_at))} IST</div>` : '';
-      return `<tr><td><b>${PC.esc(a.patient_name)}</b><div class="small muted">${PC.money(a.fee)}</div>${when}</td><td>${status}</td><td>${action}</td></tr>`;
-    }).join('') + '</tbody></table>';
+      const when = a.slot_starts_at ? `<b>${PC.esc(fmtFull(a.slot_starts_at))}</b><div class="small muted">Booked slot (IST)</div>`
+        : `<b>${PC.esc(new Date(a.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }))}</b><div class="small muted">Video consultation</div>`;
+      return `<article class="appt">
+        <span class="av" aria-hidden="true">${PC.esc(initials(a.patient_name))}</span>
+        <div class="appt-who"><b>${PC.esc(a.patient_name)}</b><div class="small muted">${PC.money(a.fee)}</div></div>
+        <div class="appt-when small">${when}</div>
+        <div class="appt-status">${status}</div>
+        <div class="appt-actions"><div class="row">${action}</div></div></article>`;
+    }).join('') + '</div>';
   }
 
   sock.on('request:new', (r) => { queue.push(r); renderQueue(); });
@@ -185,7 +226,7 @@
   sock.on('queue:changed', loadWq);
   sock.on('appointment:new', (n) => {
     loadAppts(); loadWq();
-    document.getElementById('dbanner').innerHTML = `<div class="banner go" style="margin-bottom:1rem"><div class="row spread"><span><b>${PC.esc(n.patientName)} joined from the waiting queue.</b> Their room is ready.</span>
+    document.getElementById('dbanner').innerHTML = `<div class="banner go"><div class="row spread"><span><b>${PC.esc(n.patientName)} joined from the waiting queue.</b> Their room is ready.</span>
       <a class="btn btn-primary btn-sm" href="/consult.html?a=${n.appointmentId}">Open room</a></div></div>`;
   });
   sock.on('slot:booked', () => { loadBooked(); loadAppts(); });
@@ -194,7 +235,7 @@
 
   (async () => {
     myLangs = await PCLang.get();
-    PCLang.mountEditor(document.getElementById('lang-card'), { role: 'doctor', current: myLangs, startOpen: !myLangs.length, onSaved: (l) => { myLangs = l; renderQueue(); } });
+    PCLang.mountEditor(document.getElementById('lang-card'), { role: 'doctor', current: myLangs, startOpen: !myLangs.length, onSaved: (l) => { myLangs = l; renderQueue(); renderWq(); } });
     const docs = await PC.api('GET', '/doctors');
     online = !!(docs.find((d) => d.id === PC.user.id) || {}).online; paintOnline();
     queue = await PC.api('GET', '/requests/pending'); renderQueue();

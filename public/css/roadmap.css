@@ -1,0 +1,49 @@
+/* PASTE AS: public/css/roadmap.css  (new file)  S15: the full roadmap page. Loaded after style.css. Colours come from tokens only, so dark mode works. */
+.rm-wrap { padding-inline: clamp(1rem, 3vw, 2.5rem); }
+.rd-head { margin-bottom: 1.6rem; }
+.rd-head .tag { margin-bottom: .7rem; }
+.rd-head h1 { font-size: clamp(1.9rem, 4.2vw, 2.7rem); max-width: 22ch; }
+.rd-lead { color: var(--ink-soft); max-width: 62ch; margin-top: .7rem; }
+
+.rd-sec { margin-top: 2.6rem; }
+.rd-sec > .tag { margin-bottom: .7rem; }
+.rd-sec > h2 { margin-bottom: 1.1rem; }
+
+/* the end result */
+.rd-end { display: grid; gap: .8rem; padding: 1.8rem; border-radius: var(--radius-lg); }
+.rd-end h2 { color: #fff; }
+.rd-end p { max-width: 74ch; color: rgba(255, 255, 255, .88); font-size: 1.05rem; line-height: 1.65; }
+.rd-end .tag { color: var(--lime-500); background: transparent; justify-self: start; }
+
+/* steps as cards */
+.rd-steps { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); list-style: none; }
+.rd-step { display: grid; gap: .8rem; align-content: start; }
+.rd-step-h { display: flex; align-items: center; gap: .7rem; }
+.rd-step-h h3 { margin: 0; }
+.rd-num { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--green-800); color: var(--lime-500); }
+.rd-row { border-radius: 14px; padding: .7rem .9rem; font-size: .92rem; line-height: 1.5; }
+.rd-row b { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .2rem; }
+.rd-now { background: var(--lime-wash); color: var(--ink); }
+.rd-now b { color: var(--ok-text); }
+.rd-next { background: var(--wash-2); color: var(--ink); }
+.rd-next b { color: var(--muted); }
+.rd-get { padding: .2rem .2rem 0; color: var(--ink-soft); }
+.rd-get b { color: var(--ink); }
+
+/* the three stages table */
+.rd-table-wrap { overflow-x: auto; padding: 0; }
+.rd-table { width: 100%; border-collapse: collapse; min-width: 820px; }
+.rd-table th, .rd-table td { text-align: left; vertical-align: top; padding: .85rem 1rem; border-bottom: 1px solid var(--row-line); font-size: .9rem; line-height: 1.5; }
+.rd-table tbody tr:last-child td { border-bottom: 0; }
+.rd-table td:first-child { font-weight: 700; width: 15%; white-space: nowrap; }
+.rd-table th { font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--wash-2); white-space: nowrap; }
+.rd-table th .rm-pct { display: inline-block; margin-right: .4rem; font-size: .74rem; font-weight: 800; border-radius: 999px; padding: .1rem .6rem; letter-spacing: 0; background: var(--wash-2); color: var(--ink-soft); border: 1px solid var(--border-strong); }
+.rd-table th.s30 .rm-pct { background: var(--lime-500); color: var(--green-900); border-color: var(--lime-500); }
+.rd-table td.s30 { background: var(--lime-wash); }
+.rd-table td.s70 { background: var(--wash-2); }
+.rd-table td.s100 { background: var(--amber-wash); }
+
+/* honest limits */
+.rd-limits { display: grid; gap: .5rem; border-left: 6px solid var(--amber-text); }
+.rd-limits p { max-width: 74ch; color: var(--ink-soft); }
+@media (max-width: 560px) { .rd-steps { grid-template-columns: 1fr; } .rd-end { padding: 1.3rem; } }

@@ -1,66 +1,68 @@
-<!-- PASTE AS: public/patient.html  (replaces the old file)  Day 10: link to the medical record. -->
-<!-- PASTE AS: public/patient.html  (replaces the old file)  Day 6: waiting queue + "Doctor is ready. Join now" alert. Day 5: slot picker, slot times, cancel booking -->
+<!-- PASTE AS: public/patient.html  (replaces the old file)  S8: redesigned "My care" page. Look and layout only; every id and all logic are unchanged. Needs the new public/css/dash.css. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My care | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-  <style>
-    .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: .5rem; margin-top: .8rem; }
-    .slot-btn { text-align: center; padding: .5rem .3rem; font-weight: 600; cursor: pointer; }
-    .slot-btn:disabled { background: #EEF2F4; color: #9AA7B0; border-color: #EEF2F4; cursor: not-allowed; text-decoration: line-through; }
-    .slot-btn.mine:disabled { text-decoration: none; background: var(--teal-wash); color: var(--teal-dark); border-color: var(--teal); }
-    .tabs.days { overflow-x: auto; flex-wrap: nowrap; }
-    .tabs.days .tab { white-space: nowrap; }
-  </style>
+  <link rel="stylesheet" href="/css/dash.css">
 </head>
 <body>
 <div id="chrome"></div>
 <main class="wrap">
-  <div class="row spread" style="margin-bottom:1rem">
-    <div><h1 style="font-size:1.9rem" id="hello">My care</h1><p class="muted">Doctors marked online can take your request right now.</p></div>
-    <a class="btn btn-ghost" href="/record.html">My medical record</a>
+  <div class="dash-head">
+    <div>
+      <span class="tag">My care</span>
+      <h1 class="dash-title" id="hello">My care</h1>
+      <p class="dash-sub">Doctors marked online can take your request right now.</p>
+    </div>
+    <div class="dash-actions">
+      <span class="badge online hidden" id="online-count" role="status"></span>
+      <a class="btn btn-ghost" href="/record.html"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>My medical record</a>
+    </div>
   </div>
-
-  <div id="lang-card" style="margin-bottom:1rem"></div>
 
   <div id="banner"></div>
 
-  <section id="slot-panel" class="card hidden" style="margin-bottom:1rem">
-    <div class="row spread"><h2 id="slot-title">Book a slot</h2><button class="btn btn-ghost btn-sm" id="slot-close">Close</button></div>
-    <p class="small muted">All times are Indian Standard Time (IST). Crossed-out slots are already taken. You can book up to 7 days ahead.</p>
-    <div class="tabs days" id="slot-days"></div>
-    <div class="slot-grid" id="slot-grid"></div>
-    <div class="field" style="margin-top:1rem"><label for="slot-reason" class="small"><b>Reason for the visit</b> (optional)</label>
-      <input id="slot-reason" maxlength="300" placeholder="For example: fever for two days"></div>
-    <div class="row"><button class="btn btn-primary" id="slot-confirm" disabled>Pick a slot</button></div>
-    <div class="msg" id="slot-msg"></div>
-  </section>
+  <div id="lang-card"></div>
 
-  <div class="tabs">
-    <button class="tab on" id="tab-doctors">Doctors</button>
-    <button class="tab" id="tab-appts">My consultations</button>
+  <div class="seg" role="tablist" aria-label="My care">
+    <button class="tab on" id="tab-doctors" role="tab" aria-selected="true" aria-controls="view-doctors">Doctors</button>
+    <button class="tab" id="tab-appts" role="tab" aria-selected="false" aria-controls="view-appts" tabindex="-1">My consultations</button>
   </div>
 
-  <section id="view-doctors">
-    <label class="row small hidden" id="match-row" style="margin:0 0 .8rem;font-weight:600"><input type="checkbox" id="only-match" style="width:auto" checked> Show only doctors who speak my language</label>
-    <div class="grid three" id="doctor-grid"></div>
-    <div class="note-final"><b>Final version:</b> email or SMS reminders before the visit.</div>
+  <section id="view-doctors" role="tabpanel" aria-labelledby="tab-doctors">
+    <label class="toggle hidden" id="match-row"><input type="checkbox" id="only-match" checked><span>Show only doctors who speak my language</span></label>
+    <div class="doc-grid" id="doctor-grid"><p class="muted">Loading doctors...</p></div>
   </section>
 
-  <section id="view-appts" class="hidden">
-    <div class="card" style="padding:0;overflow-x:auto">
-      <table>
-        <thead><tr><th>Doctor</th><th>When</th><th>Fee</th><th>Status</th><th>Next step</th></tr></thead>
-        <tbody id="appt-body"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody>
-      </table>
-    </div>
-    <div class="note-final"><b>Final version:</b> documents are stored in the cloud with retention rules, and medical-record uploads sit beside them.</div>
+  <section id="view-appts" class="hidden" role="tabpanel" aria-labelledby="tab-appts">
+    <div class="appt-list" id="appt-body"><p class="muted">Loading...</p></div>
   </section>
 </main>
+
+<!-- Slot booking drawer -->
+<div class="drawer-overlay hidden" id="slot-overlay"></div>
+<section id="slot-panel" class="drawer hidden" role="dialog" aria-modal="true" aria-labelledby="slot-title" tabindex="-1">
+  <div class="drawer-head">
+    <h2 id="slot-title">Book a slot</h2>
+    <button class="btn btn-ghost btn-sm" id="slot-close" type="button" aria-label="Close slot booking">Close</button>
+  </div>
+  <div class="drawer-body">
+    <p class="small muted">All times are Indian Standard Time (IST). Crossed-out slots are already taken. You can book up to 7 days ahead.</p>
+    <div class="day-pills" id="slot-days" role="group" aria-label="Choose a day"></div>
+    <div class="slot-grid" id="slot-grid" role="group" aria-label="Choose a time"></div>
+  </div>
+  <div class="drawer-foot">
+    <div class="field"><label for="slot-reason" class="small"><b>Reason for the visit</b> (optional)</label>
+      <textarea id="slot-reason" rows="2" maxlength="300" placeholder="For example: fever for two days"></textarea></div>
+    <button class="btn btn-primary btn-lg" id="slot-confirm" disabled>Pick a slot</button>
+    <div class="msg" id="slot-msg" role="status"></div>
+  </div>
+</section>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/api.js"></script>
@@ -78,6 +80,16 @@
 
   let myLangs = [], onlyMatch = true;
 
+  // Small inline icons used in the templates below
+  const IC_VIDEO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="13" height="12" rx="3"/><path d="m15 10 6-3v10l-6-3"/></svg>';
+  const IC_DOWN = '<svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>';
+  const IC_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+
+  const initials = (name) => {
+    const parts = String(name || '').replace(/^dr\.?\s+/i, '').trim().split(/\s+/).filter(Boolean);
+    return ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  };
+
   function ranked() {
     const list = doctors.map((d) => ({ d, m: PCLang.match(myLangs, d.languages) }));
     // Best language fit first, then doctors who are online
@@ -93,27 +105,47 @@
     const note = filtering && !matched.length
       ? `<div class="banner" style="grid-column:1/-1"><b>No doctor speaks ${PC.esc(myLangs.join(' + '))} yet.</b> Showing all doctors. You can use the chat and typed captions during the call.</div>` : '';
     document.getElementById('match-row').classList.toggle('hidden', !myLangs.length);
-    document.getElementById('doctor-grid').innerHTML = note + list.map(({ d, m }) => `
-      <div class="card doc-card ${suggest && suggest.doctorId === d.id ? 'suggested' : ''}">
-        <div class="row spread"><span class="dept">${PC.esc(d.department)}</span>
-          <span class="badge ${d.online ? 'online' : 'offline'}">${d.online ? 'Online' : 'Offline'}</span></div>
-        <h3>${PC.esc(d.name)}</h3>
-        <div class="small muted">${PC.esc(d.qualification)}</div>
-        <p class="small">${PC.esc(d.about)}</p>
-        <div class="small"><b>Speaks:</b> ${(d.languages || []).map((l) => m.common.some((c) => c.toLowerCase() === l.toLowerCase()) ? `<b style="color:var(--teal-dark)">${PC.esc(l)}</b>` : PC.esc(l)).join(', ') || '<span class="muted">Not set</span>'}</div>
-        ${myLangs.length ? (m.all ? '<div style="margin:.3rem 0"><span class="badge done">Speaks all your languages</span></div>' : m.any ? `<div style="margin:.3rem 0"><span class="badge pending">Speaks ${PC.esc(m.common.join(' + '))}</span></div>` : '') : ''}
-        ${suggest && suggest.doctorId === d.id ? '<div class="small" style="color:var(--teal-dark);font-weight:700">Suggested from your survey</div>' : ''}
-        ${d.online && d.busy ? `<div class="small" style="margin:.3rem 0"><span class="badge pending">In a call</span> ${d.waiting ? `${d.waiting} waiting` : 'You would be next'}</div>` : ''}
-        <div class="row spread" style="margin-top:.4rem">
-          <span class="fee">${PC.money(d.fee)}</span>
-          <div class="row">
-            <button class="btn btn-ghost btn-sm" data-slots="${d.id}">Book a slot</button>
-            <button class="btn btn-primary btn-sm" data-doc="${d.id}" ${d.online && !pending && !myQueue ? '' : 'disabled'}>${!d.online ? 'Offline' : myQueue && myQueue.doctorId === d.id ? 'In queue' : d.busy ? 'Join queue' : 'Consult now'}</button>
+
+    const online = doctors.filter((d) => d.online).length;
+    const oc = document.getElementById('online-count');
+    oc.textContent = online + (online === 1 ? ' doctor' : ' doctors') + ' online';
+    oc.classList.toggle('online', online > 0); oc.classList.toggle('offline', online === 0);
+    oc.classList.toggle('hidden', !doctors.length);
+
+    document.getElementById('doctor-grid').innerHTML = note + (list.length ? list.map(({ d, m }) => {
+      const isSuggested = suggest && suggest.doctorId === d.id;
+      const langs = d.languages || [];
+      const chips = langs.length
+        ? langs.map((l) => `<span class="lc ${m.common.some((c) => c.toLowerCase() === l.toLowerCase()) ? 'match' : ''}">${PC.esc(l)}</span>`).join('')
+        : '<span class="small muted">Languages not set</span>';
+      const flags = [
+        myLangs.length && m.all ? '<span class="badge best">Best match</span>' : '',
+        myLangs.length && !m.all && m.any ? `<span class="badge info">Speaks ${PC.esc(m.common.join(' + '))}</span>` : '',
+        isSuggested ? '<span class="badge done">Suggested from your survey</span>' : '',
+        d.online && d.busy ? `<span class="badge pending">In a call</span><span class="small muted">${d.waiting ? `${d.waiting} waiting` : 'You would be next'}</span>` : ''
+      ].join('');
+      return `
+      <article class="card doc-card ${isSuggested ? 'suggested' : ''}">
+        <div class="doc-top">
+          <span class="av" aria-hidden="true">${PC.esc(initials(d.name))}</span>
+          <div><h3>${PC.esc(d.name)}</h3><span class="dept-tag">${PC.esc(d.department)}</span></div>
+          <span class="badge ${d.online ? 'online' : 'offline'}">${d.online ? 'Online' : 'Offline'}</span>
+        </div>
+        ${flags ? `<div class="doc-flags">${flags}</div>` : ''}
+        <div class="qual">${PC.esc(d.qualification)}</div>
+        <p class="about" title="${PC.esc(d.about)}">${PC.esc(d.about)}</p>
+        <div class="lchips" aria-label="Languages spoken">${chips}</div>
+        <div class="doc-foot">
+          <div class="doc-fee"><span class="fee">${PC.money(d.fee)}</span><span class="small muted">per consultation</span></div>
+          <div class="doc-actions">
+            <button class="btn btn-primary" data-doc="${d.id}" ${d.online && !pending && !myQueue ? '' : 'disabled'}>${!d.online ? 'Offline' : myQueue && myQueue.doctorId === d.id ? 'In queue' : d.busy ? 'Join queue' : 'Request consult'}</button>
+            <button class="btn btn-ghost" data-slots="${d.id}">Book a slot</button>
           </div>
         </div>
-      </div>`).join('');
+      </article>`;
+    }).join('') : '<div class="card empty" style="grid-column:1/-1"><h3>No doctors to show yet</h3><p class="muted">Please check again in a moment.</p></div>');
     document.querySelectorAll('[data-doc]').forEach((b) => b.addEventListener('click', () => request(b.dataset.doc)));
-    document.querySelectorAll('[data-slots]').forEach((b) => b.addEventListener('click', () => openSlots(b.dataset.slots)));
+    document.querySelectorAll('[data-slots]').forEach((b) => b.addEventListener('click', () => openSlots(b.dataset.slots, b)));
   }
   document.getElementById('only-match').onchange = (e) => { onlyMatch = e.target.checked; renderDoctors(); };
 
@@ -137,10 +169,12 @@
     if (myQueue) {
       const q = myQueue;
       b.innerHTML = q.status === 'notified'
-        ? `<div class="banner go"><div class="row spread"><span><b>${PC.esc(q.doctorName)} is ready. Join now.</b> Your turn ends in <b id="q-left"></b>.</span>
-            <span class="row"><button class="btn btn-primary" id="q-join">Join now</button><button class="btn btn-ghost btn-sm" id="q-leave">Leave queue</button></span></div></div>`
-        : `<div class="banner wait"><div class="row spread"><span><b>${PC.esc(q.doctorName)} is with another patient. You are #${q.position} in the queue.</b> Keep this page open. You will get an alert the moment it is your turn.</span>
-            <button class="btn btn-ghost btn-sm" id="q-leave">Leave queue</button></div></div>`;
+        ? `<div class="q-strip go" role="alert"><div class="q-main"><span class="q-num" aria-hidden="true">${IC_VIDEO}</span>
+            <div class="q-text"><b>${PC.esc(q.doctorName)} is ready. Join now.</b><div>Your turn ends in <b id="q-left"></b>.</div></div></div>
+            <span class="row"><button class="btn btn-dark btn-lg" id="q-join">Join now</button><button class="btn btn-ghost btn-sm" id="q-leave">Leave queue</button></span></div>`
+        : `<div class="q-strip wait"><div class="q-main"><span class="q-num" aria-hidden="true">#${q.position}</span>
+            <div class="q-text"><b>You are #${q.position} in the queue</b><div>${PC.esc(q.doctorName)} is with another patient. Keep this page open. You will get an alert the moment it is your turn.</div></div></div>
+            <button class="btn btn-ghost btn-sm" id="q-leave">Leave queue</button></div>`;
       const j = document.getElementById('q-join'); if (j) j.onclick = joinNow;
       const l = document.getElementById('q-leave'); if (l) l.onclick = leaveQueue;
       paintLeft(); return;
@@ -201,17 +235,27 @@
   const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-IN', { timeZone: IST, hour: 'numeric', minute: '2-digit' });
   const fmtFull = (iso) => new Date(iso).toLocaleString('en-IN', { timeZone: IST, weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
   const dayLabel = (date) => fmtDate(date + 'T12:00:00+05:30');
-  let slotDoc = null, slotData = null, slotDay = null, slotPick = null;
+  let slotDoc = null, slotData = null, slotDay = null, slotPick = null, slotOpener = null;
   const slotMsg = (t, k) => { const m = document.getElementById('slot-msg'); m.textContent = t || ''; m.className = 'msg ' + (k || ''); };
 
-  async function openSlots(doctorId) {
-    slotDoc = doctors.find((d) => d.id === doctorId); if (!slotDoc) return;
-    slotPick = null; slotDay = null; slotMsg('');
+  // The slot panel is a side drawer (bottom sheet on phones)
+  function showSlotPanel(on) {
     const panel = document.getElementById('slot-panel');
-    panel.classList.remove('hidden');
+    panel.classList.toggle('hidden', !on);
+    document.getElementById('slot-overlay').classList.toggle('hidden', !on);
+    document.body.classList.toggle('drawer-open', on);
+    if (on) document.getElementById('slot-close').focus();
+    else if (slotOpener && document.body.contains(slotOpener)) slotOpener.focus();
+  }
+  function closeSlots() { showSlotPanel(false); slotDoc = null; slotPick = null; }
+
+  async function openSlots(doctorId, opener) {
+    slotDoc = doctors.find((d) => d.id === doctorId); if (!slotDoc) return;
+    slotOpener = opener || null;
+    slotPick = null; slotDay = null; slotMsg('');
     document.getElementById('slot-title').textContent = 'Book a slot with ' + slotDoc.name;
+    showSlotPanel(true);
     await loadSlots();
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function loadSlots() {
@@ -231,13 +275,13 @@
   function renderSlots() {
     const days = document.getElementById('slot-days'), grid = document.getElementById('slot-grid'), btn = document.getElementById('slot-confirm');
     if (!slotData.days.length) {
-      days.innerHTML = ''; grid.innerHTML = '<p class="muted small">This doctor has no open slots in the next 7 days.</p>';
+      days.innerHTML = ''; grid.innerHTML = '<p class="muted small" style="grid-column:1/-1">This doctor has no open slots in the next 7 days.</p>';
       btn.disabled = true; btn.textContent = 'No slots available'; return;
     }
-    days.innerHTML = slotData.days.map((d) => `<button class="tab ${d.date === slotDay ? 'on' : ''}" data-day="${d.date}">${PC.esc(dayLabel(d.date))} · ${d.slots.filter((s) => !s.booked).length} free</button>`).join('');
+    days.innerHTML = slotData.days.map((d) => `<button type="button" class="pill ${d.date === slotDay ? 'on' : ''}" data-day="${d.date}" aria-pressed="${d.date === slotDay}"><b>${PC.esc(dayLabel(d.date))}</b><small>${d.slots.filter((s) => !s.booked).length} free</small></button>`).join('');
     days.querySelectorAll('[data-day]').forEach((b) => b.addEventListener('click', () => { slotDay = b.dataset.day; renderSlots(); }));
     const day = slotData.days.find((d) => d.date === slotDay);
-    grid.innerHTML = day.slots.map((s) => `<button class="chip slot-btn ${s.mine ? 'mine' : ''} ${slotPick && slotPick.id === s.id ? 'on' : ''}" data-slot="${s.id}" ${s.booked ? 'disabled' : ''}>${PC.esc(fmtTime(s.startsAt))}${s.mine ? '<div class="small">Yours</div>' : ''}</button>`).join('');
+    grid.innerHTML = day.slots.map((s) => `<button type="button" class="slot-btn ${s.mine ? 'mine' : ''} ${slotPick && slotPick.id === s.id ? 'on' : ''}" data-slot="${s.id}" aria-pressed="${!!(slotPick && slotPick.id === s.id)}" ${s.booked ? 'disabled' : ''}>${PC.esc(fmtTime(s.startsAt))}${s.mine ? '<div class="small">Yours</div>' : ''}</button>`).join('');
     grid.querySelectorAll('[data-slot]').forEach((b) => b.addEventListener('click', () => {
       slotPick = day.slots.find((s) => s.id === b.dataset.slot); slotMsg(''); renderSlots();
     }));
@@ -245,13 +289,15 @@
     btn.textContent = slotPick ? `Book ${fmtFull(slotPick.startsAt)} IST` : 'Pick a slot';
   }
 
-  document.getElementById('slot-close').onclick = () => { document.getElementById('slot-panel').classList.add('hidden'); slotDoc = null; slotPick = null; };
+  document.getElementById('slot-close').onclick = closeSlots;
+  document.getElementById('slot-overlay').onclick = closeSlots;
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.getElementById('slot-panel').classList.contains('hidden')) closeSlots(); });
   document.getElementById('slot-confirm').onclick = async () => {
     if (!slotPick) return;
     const btn = document.getElementById('slot-confirm'); btn.disabled = true; slotMsg('Booking...');
     try {
       const r = await PC.api('POST', `/slots/${slotPick.id}/book`, { reason: document.getElementById('slot-reason').value });
-      document.getElementById('slot-panel').classList.add('hidden');
+      slotOpener = null; showSlotPanel(false);
       document.getElementById('slot-reason').value = '';
       slotDoc = null; slotPick = null; slotMsg('');
       renderBanner(`<div class="banner go"><b>Booked with ${PC.esc(r.doctorName)} for ${PC.esc(fmtFull(r.startsAt))} IST.</b> The room opens 10 minutes before your slot. You can find it under My consultations.</div>`);
@@ -273,15 +319,19 @@
   async function loadAppts() {
     const rows = await PC.api('GET', '/appointments');
     const body = document.getElementById('appt-body');
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="5" class="muted">No consultations yet. Choose an online doctor, or book a slot.</td></tr>'; return; }
+    if (!rows.length) {
+      body.innerHTML = `<div class="card empty"><span class="ic">${IC_CAL}</span><h3>No consultations yet</h3><p class="muted">Choose an online doctor, or book a slot for later.</p><button class="btn btn-primary" id="empty-find" type="button">Find a doctor</button></div>`;
+      document.getElementById('empty-find').onclick = () => setTab(false);
+      return;
+    }
     const now = Date.now();
     body.innerHTML = rows.map((a) => {
       let status, action;
       const startMs = a.slot_starts_at ? new Date(a.slot_starts_at).getTime() : 0;
       if (a.status === 'completed') {
         status = '<span class="badge done">Completed and paid</span>';
-        action = `<button class="btn btn-ghost btn-sm" onclick="PC.openDoc('${a.id}','prescription')">Prescription</button>
-                  <button class="btn btn-ghost btn-sm" onclick="PC.openDoc('${a.id}','invoice')">Invoice ${PC.esc(a.invoice_no || '')}</button>`;
+        action = `<button class="btn btn-ghost btn-sm" onclick="PC.openDoc('${a.id}','prescription')">${IC_DOWN}Prescription</button>
+                  <button class="btn btn-ghost btn-sm" onclick="PC.openDoc('${a.id}','invoice')">${IC_DOWN}Invoice ${PC.esc(a.invoice_no || '')}</button>`;
       } else if (a.status === 'awaiting_payment') {
         status = '<span class="badge pending">Awaiting payment</span>';
         action = `<a class="btn btn-primary btn-sm" href="/payment.html?a=${a.id}">Pay now</a>`;
@@ -295,10 +345,13 @@
                   ${a.slot_id && a.status === 'booked' && now < startMs ? `<button class="btn btn-ghost btn-sm" onclick="cancelSlot('${a.slot_id}')">Cancel</button>` : ''}`;
       }
       const when = a.slot_starts_at ? `<b>${PC.esc(fmtFull(a.slot_starts_at))}</b><div class="small muted">Booked slot (IST)${a.reason ? ' · ' + PC.esc(a.reason) : ''}</div>`
-        : new Date(a.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-      return `<tr><td><b>${PC.esc(a.doctor_name)}</b><div class="small muted">${PC.esc(a.department)}</div></td>
-        <td class="small">${when}</td>
-        <td>${PC.money(a.fee)}</td><td>${status}</td><td><div class="row">${action}</div></td></tr>`;
+        : `<b>${PC.esc(new Date(a.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }))}</b><div class="small muted">Video consultation</div>`;
+      return `<article class="appt">
+        <span class="av" aria-hidden="true">${PC.esc(initials(a.doctor_name))}</span>
+        <div class="appt-who"><b>${PC.esc(a.doctor_name)}</b><div class="small muted">${PC.esc(a.department)} · ${PC.money(a.fee)}</div></div>
+        <div class="appt-when small">${when}</div>
+        <div class="appt-status">${status}</div>
+        <div class="appt-actions"><div class="row">${action}</div></div></article>`;
     }).join('');
   }
 
@@ -338,12 +391,20 @@
   });
 
   function setTab(appts) {
-    document.getElementById('tab-doctors').classList.toggle('on', !appts); document.getElementById('tab-appts').classList.toggle('on', appts);
+    const td = document.getElementById('tab-doctors'), ta = document.getElementById('tab-appts');
+    td.classList.toggle('on', !appts); ta.classList.toggle('on', appts);
+    td.setAttribute('aria-selected', String(!appts)); ta.setAttribute('aria-selected', String(appts));
+    td.tabIndex = appts ? -1 : 0; ta.tabIndex = appts ? 0 : -1;
     document.getElementById('view-doctors').classList.toggle('hidden', appts); document.getElementById('view-appts').classList.toggle('hidden', !appts);
     if (appts) loadAppts();
   }
   document.getElementById('tab-doctors').onclick = () => setTab(false);
   document.getElementById('tab-appts').onclick = () => setTab(true);
+  document.querySelector('.seg').addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const toAppts = e.key === 'ArrowRight'; setTab(toAppts);
+    document.getElementById(toAppts ? 'tab-appts' : 'tab-doctors').focus();
+  });
   if (location.hash === '#appts') setTab(true);
 
   (async () => {

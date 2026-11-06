@@ -1,3 +1,4 @@
+<!-- PASTE AS: public/index.html  (replaces the old file)  S4 + S5 + photos: full-width hero, about sections, call-to-action and footer. Photos load from /images (see images/README.txt); a missing photo falls back to the illustration. Sign-in and help sections below are unchanged until S5 to S7. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,29 +6,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pulscare Tele-Health</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/home.css">
 </head>
 <body>
-<div id="chrome"></div>
-
-<main class="wrap">
+<div class="hero-shell">
+  <div class="hero-decor" aria-hidden="true"></div>
+  <div id="chrome"></div>
   <div id="signed-in" class="banner go hidden"></div>
 
-  <section class="hero">
+  <section class="hero2" aria-labelledby="hero-title">
     <div>
-      <h1>Speak to a doctor tonight, in the language you think in.</h1>
+      <span class="tag">Online doctors, any language</span>
+      <h1 id="hero-title">Speak to a doctor tonight, in the language you <span class="hl">think in</span>.</h1>
       <p class="lead">Pick your symptoms, meet a specialist on video, pay once the call ends, and get your prescription and invoice as two separate, signed documents.</p>
-      <div class="note-live"><b>Client preview.</b> Everything you click here talks to a real local server and database. The strip above shows each backend step, and the button at the bottom right shows server activity as it happens.</div>
-      <div class="card" style="margin-top:1.1rem">
-        <h3>Demo accounts</h3>
-        <p class="small muted">Patient: <b>demo@pulscare.test</b> / <b>patient123</b><br>Doctor: choose any doctor in the dropdown / <b>doctor123</b></p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="#triage">Start now</a>
+        <a class="btn btn-white btn-lg" id="hero-login" href="#signin">Log in</a>
       </div>
+      <ul class="hero-points">
+        <li>Encrypted video and chat</li>
+        <li>Signed prescription</li>
+        <li>English, हिन्दी, ಕನ್ನಡ</li>
+      </ul>
     </div>
 
-    <div class="card hero-card" id="triage">
+    <div class="call-mock" aria-hidden="true">
+      <div class="cm-window">
+        <div class="cm-bar"><span class="cm-dot"></span><span class="cm-dot"></span><span class="cm-dot"></span>
+          <span class="cm-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Secure consultation</span></div>
+        <div class="cm-stage">
+          <div class="cm-tile cm-main"><svg class="cm-person" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="17"/><path d="M14 100c0-20 15-33 36-33s36 13 36 33z"/></svg><img class="ph" src="https://images.unsplash.com/photo-1758691461513-88a0aef72160?auto=format&fit=crop&crop=faces&w=800&h=1000&q=70" referrerpolicy="no-referrer" alt="" onerror="this.remove()"><span class="cm-name">Your doctor</span></div>
+          <div class="cm-tile cm-self"><svg class="cm-person" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="17"/><path d="M14 100c0-20 15-33 36-33s36 13 36 33z"/></svg><img class="ph" src="https://images.unsplash.com/photo-1698891667757-a902e4879254?auto=format&fit=crop&crop=faces&w=600&h=800&q=70" referrerpolicy="no-referrer" alt="" onerror="this.remove()"><span class="cm-name">You</span></div>
+        </div>
+        <div class="cm-dock">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></i>
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3z"/></svg></i>
+          <i class="end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c5-5 13-5 18 0l-2.5 2.5-3-1.5v-2.5a10 10 0 0 0-5 0V15l-3 1.5z"/></svg></i>
+        </div>
+      </div>
+      <span class="cm-cap">Take this after food, twice a day.</span>
+      <span class="cm-bubble b1">Hello!</span>
+      <span class="cm-bubble b2">नमस्ते</span>
+      <span class="cm-bubble b3">ನಮಸ್ಕಾರ</span>
+      <div class="cm-secure"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#001811" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.2 8 9 4.6-.8 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><div><b>End-to-end encrypted</b><small>Your chat stays private</small></div></div>
+    </div>
+  </section>
+</div>
+
+<main class="home-main">
+  <section class="band band-triage"><div class="container"><div class="triage" id="triage">
+    <div class="tri-head">
       <h2 data-i18n="survey_title">Tell us how you feel</h2>
-      <div class="field" style="margin-top:.8rem">
+      <div class="tri-lang">
         <label data-i18n="choose_lang">Choose your language</label>
         <div class="pill-row" id="lang-pills">
           <button class="pill on" data-lang="en">English</button>
@@ -35,55 +67,134 @@
           <button class="pill" data-lang="kn">ಕನ್ನಡ</button>
         </div>
       </div>
-      <label data-i18n="pick_symptoms">Select your symptoms</label>
-      <div class="chips" id="symptoms"></div>
-      <div class="suggest" id="suggest"><span class="muted" data-i18n="none_yet">Select a symptom to see a suggested specialist.</span></div>
-      <a href="#signin" class="btn btn-primary" style="width:100%;margin-top:1rem" data-i18n="continue">Continue to sign in</a>
     </div>
-  </section>
+    <label data-i18n="pick_symptoms">Select your symptoms</label>
+    <div class="chips" id="symptoms"></div>
+    <div class="tri-foot">
+      <div class="suggest" id="suggest"><span class="muted" data-i18n="none_yet">Select a symptom to see a suggested specialist.</span></div>
+      <a href="#signin" class="btn btn-primary btn-lg" data-i18n="continue">Continue to sign in</a>
+    </div>
+  </div></div></section>
 
-  <section id="signin" class="auth-grid">
-    <div class="card">
-      <div class="tabs">
-        <button class="tab on" id="tab-login">Patient log in</button>
-        <button class="tab" id="tab-register">New patient</button>
+  <section id="signin" class="band band-signin" aria-labelledby="signin-title"><div class="container auth-grid">
+
+    <!-- Welcome panel -->
+    <aside class="auth-welcome">
+      <span class="tag">For patients</span>
+      <h2 id="signin-title">Welcome back</h2>
+      <p class="lead">Log in to see your appointments, join your video call and open your signed documents.</p>
+      <ul class="auth-points">
+        <li>Doctors who speak English, हिन्दी and ಕನ್ನಡ</li>
+        <li>Encrypted video and chat</li>
+        <li>Prescription and invoice as signed documents</li>
+      </ul>
+      <svg class="auth-art" viewBox="0 0 230 120" aria-hidden="true">
+        <circle cx="170" cy="60" r="52" fill="rgba(138,235,76,.16)"/>
+        <circle cx="170" cy="60" r="34" fill="#8AEB4C"/>
+        <path d="M170 44c-6-8-20-4-20 6 0 10 12 16 20 24 8-8 20-14 20-24 0-10-14-14-20-6z" fill="#001811"/>
+        <path d="M0 78h58l10-26 14 50 12-36 8 12h38" fill="none" stroke="#8AEB4C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </aside>
+
+    <!-- Patient card -->
+    <div class="card auth-card">
+      <div class="tabs" role="group" aria-label="Patient account">
+        <button type="button" class="tab on" id="tab-login">Patient log in</button>
+        <button type="button" class="tab" id="tab-register">New patient</button>
       </div>
       <div id="form-login">
-        <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" placeholder="demo@pulscare.test"></div>
+        <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" placeholder="you@example.com"></div>
         <div class="field"><label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password"></div>
-        <button class="btn btn-primary" id="btn-login" style="width:100%">Log in</button>
+        <button class="btn btn-primary btn-lg" id="btn-login" style="width:100%">Log in</button>
       </div>
       <div id="form-register" class="hidden">
         <div class="field"><label for="r-name">Full name</label><input id="r-name" autocomplete="name"></div>
         <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" autocomplete="email"></div>
         <div class="field"><label for="r-phone">Phone (optional)</label><input id="r-phone" type="tel" autocomplete="tel"></div>
         <div class="field"><label for="r-pass">Password (6+ characters)</label><input id="r-pass" type="password" autocomplete="new-password"></div>
-        <button class="btn btn-primary" id="btn-register" style="width:100%">Create account</button>
+        <button class="btn btn-primary btn-lg" id="btn-register" style="width:100%">Create account</button>
       </div>
       <div class="msg" id="patient-msg" role="alert"></div>
-      <div class="note-final"><b>Final version:</b> email verification and login rate limits.</div>
+      <p class="auth-switch">Are you a doctor? <a href="#doctor-login">Log in here</a></p>
     </div>
 
-    <div class="card">
-      <h2 style="margin-bottom:.9rem">Doctor log in</h2>
+    <!-- Doctor card -->
+    <div class="card-dark auth-doctor" id="doctor-login">
+      <div class="doc-head">
+        <span class="doc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6a4 4 0 0 0 8 0V3M10 13v2a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="12" r="2"/></svg></span>
+        <div><h2>Doctor log in</h2><p class="small">For registered Pulscare doctors</p></div>
+      </div>
       <div class="field"><label for="d-select">Doctor</label><select id="d-select"></select></div>
-      <div class="field"><label for="d-pass">Password</label><input id="d-pass" type="password" autocomplete="current-password" placeholder="doctor123"></div>
-      <button class="btn btn-primary" id="btn-doctor" style="width:100%">Log in as doctor</button>
+      <div class="field"><label for="d-pass">Password</label><input id="d-pass" type="password" autocomplete="current-password"></div>
+      <button class="btn btn-white btn-lg" id="btn-doctor" style="width:100%">Log in as doctor</button>
       <div class="msg" id="doctor-msg" role="alert"></div>
-      <div class="note-final"><b>Final version:</b> doctor schedules and an admin panel that approves doctors.</div>
     </div>
-  </section>
+  </div></section>
 
-  <section id="help-steps" class="help-steps" aria-labelledby="help-title">
-    <style>
-      .help-steps{display:grid;grid-template-columns:1.2fr 1fr;gap:1.1rem;margin-top:1.4rem}
-      .help-steps ol{list-style:none;counter-reset:h;display:grid;gap:.7rem;margin-top:.8rem}
-      .help-steps li{counter-increment:h;display:grid;grid-template-columns:30px 1fr;gap:.7rem;align-items:start}
-      .help-steps li::before{content:counter(h);width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;display:grid;place-items:center}
-      .help-steps .sos-card-info li::before{background:#D93D45}
-      .help-steps .sos-card-info{border-top:5px solid #D93D45}
-      @media(max-width:880px){.help-steps{grid-template-columns:1fr}}
-    </style>
+  <!-- S5: about sections -->
+  <section class="band band-surface" aria-labelledby="bridge-title"><div class="container bridge">
+    <div class="collage" aria-hidden="true">
+      <div class="col-tile col-big"><svg class="cm-person" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="17"/><path d="M14 100c0-20 15-33 36-33s36 13 36 33z"/></svg><img class="ph" src="https://images.unsplash.com/photo-1758691462651-611d730c5272?auto=format&fit=crop&crop=faces&w=800&h=1000&q=70" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"><span class="cm-name">Your doctor</span></div>
+      <div class="col-tile col-s1"><svg class="cm-person" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="17"/><path d="M14 100c0-20 15-33 36-33s36 13 36 33z"/></svg><img class="ph" src="https://images.pexels.com/photos/6285324/pexels-photo-6285324.jpeg?auto=format&fit=crop&crop=faces&w=600&h=450&q=70" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"><span class="cm-name">You</span></div>
+      <div class="col-tile col-s2"><svg class="cm-person" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="17"/><path d="M14 100c0-20 15-33 36-33s36 13 36 33z"/></svg><img class="ph" src="https://images.pexels.com/photos/7195085/pexels-photo-7195085.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=600&h=450" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"></div>
+      <div class="col-card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3z"/></svg></span><div><b>Video consultation</b><small>Online now</small></div></div>
+    </div>
+    <div class="bridge-text">
+      <span class="tag">Care that speaks your language</span>
+      <h2 id="bridge-title">Bridging the gap between you and your doctor</h2>
+      <p class="muted">Choose English, हिन्दी or ಕನ್ನಡ, describe how you feel, and meet an available specialist on a private video call. Live captions and encrypted chat help both of you understand each other.</p>
+      <div class="rings">
+        <div class="ring-item"><span class="ring">3</span><div><b>Languages</b><small>English, हिन्दी, ಕನ್ನಡ</small></div></div>
+        <div class="ring-item"><span class="ring">2</span><div><b>Signed documents</b><small>Prescription and invoice</small></div></div>
+      </div>
+      <a class="btn btn-primary btn-lg" href="#triage">Start now</a>
+    </div>
+  </div></section>
+
+  <section id="steps" class="band band-paper" aria-labelledby="steps-title"><div class="container">
+    <div class="sec-head"><span class="tag">How it works</span><h2 id="steps-title">Four simple steps to your doctor</h2></div>
+    <ol class="steps4">
+      <li><span class="s-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>Step 1</small><b>Create your profile</b></li>
+      <li><span class="s-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg></span><small>Step 2</small><b>Choose a specialist</b></li>
+      <li class="hot"><span class="s-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3z"/></svg></span><small>Step 3</small><b>Video consultation</b></li>
+      <li><span class="s-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg></span><small>Step 4</small><b>Prescription and invoice</b></li>
+    </ol>
+  </div></section>
+
+  <section class="band band-surface" aria-labelledby="trust-title"><div class="container trust">
+    <div class="orbit-card" aria-hidden="true">
+      <div class="orbit">
+        <span class="o-core"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#8AEB4C"/><path d="M3 17h7l3-7 5 13 3-6h8" stroke="#001811" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <i style="--a:0deg">EN</i><i style="--a:60deg">हि</i><i style="--a:120deg">ಕ</i>
+        <i style="--a:180deg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i><i style="--a:240deg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3z"/></svg></i><i style="--a:300deg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.2 8 9 4.6-.8 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></i>
+      </div>
+    </div>
+    <div>
+      <div class="sec-head left"><span class="tag">What patients say</span><h2 id="trust-title">Care you can follow and trust</h2></div>
+      <figure class="quote-card">
+        <div class="stars" role="img" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>I explained my problem in Kannada and the doctor understood me straight away. The prescription arrived right after I paid.</blockquote>
+        <figcaption><span class="av">SP<img class="ph" src="https://images.unsplash.com/photo-1579406842270-ea87c39a8a12?auto=format&fit=crop&crop=faces&w=200&h=200&q=70" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"></span><div><b>Sample patient</b><small>Sample feedback, for the demo</small></div></figcaption>
+      </figure>
+    </div>
+  </div></section>
+
+  <section class="band band-paper" aria-labelledby="feat-title"><div class="container">
+    <div class="sec-head"><span class="tag">Why Pulscare</span><h2 id="feat-title">Everything for a safe consultation</h2></div>
+    <div class="feat-grid">
+      <article class="feat"><div class="feat-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v6a4 4 0 0 0 8 0V3M10 13v2a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="12" r="2"/></svg><img class="ph" src="https://images.pexels.com/photos/7578803/pexels-photo-7578803.jpeg?auto=format&fit=crop&crop=faces&w=800&h=500&q=70" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"><span class="feat-tag">Specialists</span></div>
+        <h3>Doctors who speak your language</h3><p class="muted small">See who is online, and doctors who share your languages are shown first.</p>
+        <a class="btn btn-ghost btn-sm" href="#triage">Find a doctor</a></article>
+      <article class="feat"><div class="feat-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><img class="ph" src="https://images.pexels.com/photos/7195319/pexels-photo-7195319.jpeg?auto=format&fit=crop&crop=faces&w=800&h=500&q=70" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"><span class="feat-tag">Privacy</span></div>
+        <h3>Encrypted video and chat</h3><p class="muted small">Your chat is locked end to end, and live captions help when the sound is poor.</p>
+        <a class="btn btn-ghost btn-sm" href="#signin">Log in to start</a></article>
+      <article class="feat"><div class="feat-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg><img class="ph" src="https://images.unsplash.com/photo-1758691461990-03b49d969495?auto=format&fit=crop&crop=faces&w=800&h=500&q=70" referrerpolicy="no-referrer" alt="" loading="lazy" onerror="this.remove()"><span class="feat-tag">Documents</span></div>
+        <h3>Signed prescription and invoice</h3><p class="muted small">After payment you get two separate documents, and anyone can check a prescription by its QR code.</p>
+        <a class="btn btn-ghost btn-sm" href="#steps">See how it works</a></article>
+    </div>
+  </div></section>
+
+  <section id="help-steps" class="band band-help" aria-labelledby="help-title"><div class="container help-steps">
     <div class="card">
       <h2 id="help-title">Not sure what to click? Use the Help button</h2>
       <p class="small muted">It is on every page, so you are never stuck.</p>
@@ -104,8 +215,40 @@
         <li><span>Allow your location. We show the nearest hospitals and open Google Maps with directions.</span></li>
       </ol>
     </div>
-  </section>
+  </div></section>
+
+  <section class="band band-cta" aria-labelledby="cta-title"><div class="container cta">
+    <div>
+      <h2 id="cta-title">Your doctor is one tap away</h2>
+      <p>Tell us how you feel and we will point you to the right specialist.</p>
+      <ul class="cta-pills"><li>Encrypted chat</li><li>Live captions</li><li>Signed documents</li></ul>
+    </div>
+    <div class="cta-actions">
+      <a class="btn btn-primary btn-lg" href="#triage">Start consult</a>
+      <a class="btn btn-white btn-lg" href="#signin">Log in</a>
+    </div>
+  </div></section>
 </main>
+
+<footer class="site-footer">
+  <div class="container foot-top">
+    <div class="foot-brand">
+      <a class="logo" href="/index.html" aria-label="Pulscare home"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#8AEB4C"/><path d="M3 17h7l3-7 5 13 3-6h8" stroke="#001811" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Puls<em>care</em></span></a>
+      <p class="muted small">Online consultations in the language you think in, with a signed prescription and invoice at the end.</p>
+    </div>
+    <nav class="foot-col" aria-label="Product"><h3>Product</h3>
+      <a href="#triage">Find a doctor</a><a href="#steps">How it works</a><a href="#signin">Patient log in</a><a href="#signin">Doctor log in</a><a href="/verify.html">Verify a prescription</a></nav>
+    <nav class="foot-col" aria-label="Support"><h3>Support</h3>
+      <button type="button" class="foot-link" data-open-help>Need help?</button>
+      <button type="button" class="foot-link" id="foot-sos">Emergency SOS</button>
+      <a href="mailto:support@pulscare.test">support@pulscare.test</a></nav>
+    <div class="foot-col"><h3>In an emergency</h3><p class="small">Call <b>112</b> or the <b>108</b> ambulance. Do not wait for an online doctor.</p></div>
+  </div>
+  <div class="container foot-big">
+    <button type="button" class="big-word" data-open-help aria-label="Open the help box"><span>Need help?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></i></button>
+  </div>
+  <div class="container foot-bottom"><small>&copy; 2026 Pulscare</small><small>Not a substitute for emergency care</small></div>
+</footer>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/api.js"></script>
@@ -113,6 +256,7 @@
 <script src="/js/ui.js"></script>
 <script>
   PCUI.mount({ step: 1, active: 'home' });
+  document.getElementById('foot-sos').onclick = () => { if (window.PCSOS) PCSOS.open(); };
 
   const SYMPTOMS = [
     { k: 's_fever', en: 'Fever and cold', doc: 'DOC-1003' }, { k: 's_chest', en: 'Chest pain', doc: 'DOC-1001' },
@@ -166,6 +310,8 @@
     const b = document.getElementById('signed-in');
     b.classList.remove('hidden');
     b.innerHTML = `You are signed in as <b>${PC.esc(PC.user.name)}</b>. <a href="/${PC.user.role}.html">Continue to your ${PC.user.role} page</a>`;
+    const hl = document.getElementById('hero-login');
+    hl.textContent = 'Go to my page'; hl.href = '/' + PC.user.role + '.html';
   }
 
   // Patient tabs

@@ -1,0 +1,46 @@
+/* PASTE AS: public/css/verify.css  (new file)  S12: public prescription check. Loaded after style.css.
+   Colours come from tokens only, so it works in light and dark mode. */
+
+.vf-page { min-height: 100vh; display: flex; flex-direction: column; }
+.vf-top { display: flex; align-items: center; justify-content: center; padding: 1.4rem 1rem .4rem; }
+.vf-brand { display: inline-flex; align-items: center; gap: .6rem; font-weight: 800; font-size: 1.3rem; letter-spacing: -.01em; color: var(--ink); text-decoration: none; }
+.vf-brand .mk { width: 34px; height: 34px; border-radius: 10px; background: var(--lime-500); color: var(--green-900); display: grid; place-items: center; }
+.vf-brand .mk svg { width: 20px; height: 20px; }
+.vf-brand em { font-style: normal; color: var(--link); }
+:root[data-theme="dark"] .vf-brand em { color: var(--lime-500); }
+
+.vf-main { flex: 1; display: grid; place-items: start center; padding: 1.4rem 1rem 3rem; }
+.vf-card { width: 100%; max-width: 560px; text-align: center; padding: clamp(1.6rem, 5vw, 2.6rem) clamp(1.2rem, 5vw, 2.4rem) 1.6rem; }
+
+/* big status circle */
+.vf-ic { width: 92px; height: 92px; margin: 0 auto 1.2rem; border-radius: 50%; display: grid; place-items: center; }
+.vf-ic svg { width: 44px; height: 44px; }
+.vf-ic.ok { background: var(--lime-500); color: var(--green-900); box-shadow: 0 0 0 12px rgba(138, 235, 76, .22); }
+.vf-ic.bad { background: var(--coral); color: #fff; box-shadow: 0 0 0 12px rgba(217, 61, 69, .16); }
+.vf-ic.info { background: var(--offline-bg); color: var(--muted); box-shadow: 0 0 0 12px rgba(120, 140, 130, .14); }
+
+.vf-card h1 { font-size: clamp(1.45rem, 4.4vw, 1.9rem); font-weight: 800; line-height: 1.2; margin: .7rem 0 .4rem; }
+.vf-lead { color: var(--ink-soft); max-width: 44ch; margin: 0 auto; }
+
+.vf-reason { margin: 1.1rem auto 0; max-width: 46ch; padding: .85rem 1rem; border-radius: var(--radius-sm); background: var(--coral-wash); color: var(--err-text); font-weight: 600; line-height: 1.45; text-align: left; }
+.vf-warn { margin-top: 1rem; font-size: .88rem; color: var(--muted); }
+
+/* details table */
+.vf-rows { margin: 1.5rem 0 0; padding: 0; text-align: left; border-top: 1px solid var(--line); }
+.vf-rows > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1.2rem; padding: .8rem .1rem; border-bottom: 1px solid var(--row-line); }
+.vf-rows dt { color: var(--muted); font-size: .9rem; flex: none; }
+.vf-rows dd { margin: 0; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.vf-checks { display: flex; gap: .6rem; align-items: flex-start; margin-top: 1.2rem; padding: .85rem 1rem; border-radius: var(--radius-sm); background: var(--lime-wash); color: var(--ok-text); font-size: .86rem; line-height: 1.5; text-align: left; }
+.vf-checks svg { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+:root[data-theme="dark"] .vf-checks { background: rgba(138, 235, 76, .12); color: #A5F078; }
+
+.vf-actions { margin-top: 1.4rem; }
+.vf-foot { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid var(--line); width: 100%; font-size: .82rem; color: var(--muted); }
+.vf-foot svg { width: 16px; height: 16px; color: var(--link); }
+:root[data-theme="dark"] .vf-foot svg { color: var(--lime-500); }
+
+/* checking state */
+.vf-spin { width: 44px; height: 44px; margin: .6rem auto 1.1rem; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--lime-600); animation: vf-spin .9s linear infinite; }
+@keyframes vf-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .vf-spin { animation: none; border-top-color: var(--line); } }
+@media (max-width: 420px) { .vf-rows > div { flex-direction: column; gap: .15rem; } .vf-rows dd { text-align: left; } }

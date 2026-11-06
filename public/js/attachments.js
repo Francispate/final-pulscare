@@ -14,14 +14,19 @@
   .att-drop:hover,.att-drop.over{border-color:var(--teal);background:var(--teal-wash)}
   .att-drop b{display:block;color:var(--ink)}
   .att-list{list-style:none;display:grid;gap:.5rem;margin-top:.8rem}
-  .att-item{display:grid;grid-template-columns:56px 1fr auto;gap:.65rem;align-items:center;border:1px solid var(--line);border-radius:10px;padding:.45rem;background:#fff}
-  .att-thumb{width:56px;height:56px;border-radius:8px;background:#EEF2F4;display:grid;place-items:center;overflow:hidden;font-weight:700;font-size:.75rem;color:var(--ink-soft);border:0;padding:0}
+  .att-item{display:grid;gap:.65rem;border:1px solid var(--line);border-radius:14px;padding:.85rem;background:#fff}
+  .att-thumb{width:100%;height:170px;border-radius:10px;background:#EEF2F4;display:grid;place-items:center;overflow:hidden;font-weight:800;font-size:1.1rem;letter-spacing:.06em;color:var(--ink-soft);border:0;padding:0;cursor:pointer}
+  .att-thumb.doc{height:96px}
   .att-thumb img{width:100%;height:100%;object-fit:cover}
-  .att-name{font-weight:600;font-size:.88rem;word-break:break-word;border:0;background:none;text-align:left;padding:0;color:var(--ink)}
+  .att-meta{text-align:center;font-size:.8rem}
+  .att-actions{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:.5rem}
+  .att-actions .btn{width:100%;min-height:44px;padding:.5rem .6rem;font-size:.88rem}
+  .att-name{font-weight:700;font-size:.95rem;word-break:break-word;border:0;background:none;text-align:center;width:100%;padding:0;color:var(--ink)}
   .att-name:hover{color:var(--teal-dark);text-decoration:underline}
   .att-new{background:#FFF4D6;border-color:#E3B96C}
   .att-bar{height:6px;border-radius:99px;background:#E3EAEE;overflow:hidden;margin-top:.5rem}
   .att-bar i{display:block;height:100%;width:0;background:var(--teal);transition:width .15s}
+  .att-rm{color:var(--err-text)}
   .att-modal{position:fixed;inset:0;z-index:200;background:rgba(8,18,28,.82);display:flex;flex-direction:column;padding:.8rem}
   .att-modal-head{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;color:#fff;padding-bottom:.6rem}
   .att-modal-head b{flex:1;min-width:140px;word-break:break-word}
@@ -57,14 +62,17 @@
 
   function paint(newId) {
     $('att-count').textContent = files.length + (files.length === 1 ? ' file' : ' files');
-    $('att-list').innerHTML = files.length ? files.map((f) => `<li class="att-item ${f.id === newId ? 'att-new' : ''}">
-      <button class="att-thumb" data-open="${f.id}" aria-label="Preview ${esc(f.name)}">${kind(f) === 'image' ? `<img loading="lazy" src="${url(f)}" alt="">` : esc(label(f))}</button>
-      <div><button class="att-name" data-open="${f.id}">${esc(f.name)}</button><div class="small muted">${size(f.size)}${f.id === newId ? ' · just shared' : ''}</div></div>
-      <div class="row" style="gap:.3rem;flex-wrap:nowrap">
+    $('att-list').innerHTML = files.length ? files.map((f) => {
+      const canDel = !isDoctor && f.uploaderId === PC.user.id;
+      return `<li class="att-item ${f.id === newId ? 'att-new' : ''}">
+      <button class="att-name" data-open="${f.id}">${esc(f.name)}</button>
+      <button class="att-thumb ${kind(f) === 'image' ? '' : 'doc'}" data-open="${f.id}" aria-label="Preview ${esc(f.name)}">${kind(f) === 'image' ? `<img loading="lazy" src="${url(f)}" alt="">` : esc(label(f))}</button>
+      <div class="att-meta small muted">${size(f.size)}${f.id === newId ? ' · just shared' : ''}</div>
+      <div class="att-actions" style="--n:${canDel ? 3 : 2}">
         <button class="btn btn-ghost btn-sm" data-open="${f.id}">Preview</button>
         <a class="btn btn-ghost btn-sm" href="${url(f, true)}" download>Download</a>
-        ${!isDoctor && f.uploaderId === PC.user.id ? `<button class="btn btn-ghost btn-sm" data-del="${f.id}" aria-label="Remove ${esc(f.name)}">Remove</button>` : ''}
-      </div></li>`).join('')
+        ${canDel ? `<button class="btn btn-ghost btn-sm att-rm" data-del="${f.id}" aria-label="Remove ${esc(f.name)}">Remove</button>` : ''}
+      </div></li>`; }).join('')
       : `<li class="small muted">${isDoctor ? 'No files yet. If you need a report or scan, ask the patient in the chat to upload it here.' : 'No files added yet.'}</li>`;
     document.querySelectorAll('[data-open]').forEach((b) => (b.onclick = () => openViewer(b.dataset.open)));
     document.querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => remove(b.dataset.del)));

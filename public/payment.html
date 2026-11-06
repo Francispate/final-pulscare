@@ -1,15 +1,18 @@
+<!-- PASTE AS: public/payment.html  (replaces the old file)  S11: redesigned checkout and documents. Look and layout only; every id and all payment logic are unchanged. Needs the new public/css/payment.css. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payment | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/payment.css">
 </head>
 <body>
 <div id="chrome"></div>
-<main class="wrap" style="max-width:860px">
+<main class="wrap pay-wrap">
   <div id="content"><p class="muted">Loading...</p></div>
 </main>
 
@@ -22,64 +25,110 @@
   PCUI.mount({ step: 7, active: 'dash' });
   const id = new URLSearchParams(location.search).get('a');
   const root = document.getElementById('content');
+  const $ = (x) => document.getElementById(x);
+
+  // simple line icons (inline, no library)
+  const svg = (p) => `<svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const IC = {
+    lock: svg('<rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
+    card: svg('<rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h3"/>'),
+    upi: svg('<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/>'),
+    check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+    doc: svg('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>'),
+    receipt: svg('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9.5 8h5M9.5 12h5"/>'),
+    shield: svg('<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'),
+    alert: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/>'),
+    clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+    back: svg('<path d="M15 5l-7 7 7 7"/>')
+  };
+  const initials = (n) => String(n || '?').replace(/^Dr\.?\s*/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '?';
+  const back = `<a class="btn btn-primary" href="/patient.html">${IC.back} Back to My care</a>`;
+
   let a;
-  try { a = await PC.api('GET', '/appointments/' + id); } catch (e) { root.innerHTML = `<div class="card"><h2>Payment unavailable</h2><p>${PC.esc(e.message)}</p></div>`; return; }
+  try { a = await PC.api('GET', '/appointments/' + id); }
+  catch (e) {
+    root.innerHTML = `<div class="card pay-state"><div class="pay-ic warn">${IC.alert}</div><h2>Payment unavailable</h2><p>${PC.esc(e.message)}</p>${back}</div>`;
+    return;
+  }
   if (a.payment_status === 'paid') return showSuccess(a.invoice_no, null);
-  if (a.status !== 'awaiting_payment') { root.innerHTML = `<div class="card"><h2>Payment opens after the call</h2><p>The doctor has not ended this consultation yet.</p><a class="btn btn-primary" href="/consult.html?a=${id}">Back to the call</a></div>`; return; }
+  if (a.status !== 'awaiting_payment') {
+    root.innerHTML = `<div class="card pay-state"><div class="pay-ic">${IC.clock}</div><h2>Payment opens after the call</h2><p>The doctor has not ended this consultation yet.</p>${back}</div>`;
+    return;
+  }
 
   let method = 'card';
+  const when = new Date(a.created_at || Date.now()).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' });
   root.innerHTML = `
-    <h1 style="font-size:2rem;margin-bottom:.4rem">Your consultation has ended</h1>
-    <p class="muted" style="margin-bottom:1.2rem">Pay now to receive your prescription and invoice.</p>
-    <div class="grid two">
-      <div class="card">
-        <h3>Summary</h3>
-        <table><tbody>
-          <tr><td class="muted">Doctor</td><td><b>${PC.esc(a.doctor_name)}</b></td></tr>
-          <tr><td class="muted">Department</td><td>${PC.esc(a.department)}</td></tr>
-          <tr><td class="muted">Appointment</td><td>${PC.esc(a.id)}</td></tr>
-          <tr><td class="muted">Fee</td><td><b style="font-size:1.2rem">${PC.money(a.fee)}</b></td></tr>
-        </tbody></table>
-        <div class="note-live" style="margin-top:1rem">Your prescription is written and waiting. It is released the moment payment is verified.</div>
-        <div class="note-final"><b>Final version:</b> Razorpay checkout with a backup webhook, so payment still confirms if you close this tab.</div>
-      </div>
-      <div class="card" id="pay-card">
-        <h3>Pay</h3>
-        <div class="tabs">
-          <button class="tab on" id="m-card">Card</button><button class="tab" id="m-upi">UPI</button>
+    <div class="pay-head">
+      <span class="tag">Consultation ended</span>
+      <h1 class="pay-title">Complete your payment</h1>
+      <p class="pay-sub">Pay now to receive your prescription and invoice.</p>
+    </div>
+    <div class="pay-shell">
+      <section class="pay-sum" aria-label="Summary">
+        <span class="tag">Summary</span>
+        <div class="pay-doc">
+          <div class="pay-av" aria-hidden="true">${PC.esc(initials(a.doctor_name))}</div>
+          <div><b>${PC.esc(a.doctor_name)}</b><span>${PC.esc(a.department)}</span></div>
+        </div>
+        <dl class="pay-rows">
+          <div><dt>Appointment</dt><dd>${PC.esc(a.id)}</dd></div>
+          <div><dt>Date</dt><dd>${PC.esc(when)}</dd></div>
+          <div><dt>Consultation fee</dt><dd>${PC.money(a.fee)}</dd></div>
+          <div><dt>Tax (0%)</dt><dd>${PC.money(0)}</dd></div>
+        </dl>
+        <div class="pay-total"><span>Total</span><b>${PC.money(a.fee)}</b></div>
+        <div class="pay-note">${IC.shield}<span>Your prescription is written and waiting. It is released the moment payment is verified.</span></div>
+      </section>
+
+      <section class="card pay-card" id="pay-card">
+        <h2>Pay</h2>
+        <div class="pay-seg" role="group" aria-label="Payment method">
+          <button type="button" class="tab on" id="m-card">${IC.card} Card</button><button type="button" class="tab" id="m-upi">${IC.upi} UPI</button>
         </div>
         <div id="card-form">
-          <div class="field"><label for="c-num">Card number</label><input id="c-num" inputmode="numeric" placeholder="4111 1111 1111 1111" autocomplete="off"></div>
-          <div class="grid two"><div class="field"><label for="c-exp">Expiry (MM/YY)</label><input id="c-exp" placeholder="12/30" autocomplete="off"></div>
-          <div class="field"><label for="c-cvv">CVV</label><input id="c-cvv" inputmode="numeric" placeholder="123" autocomplete="off"></div></div>
-          <p class="small muted">Test mode. <a href="#" id="fill-ok">Use the success card</a> or <a href="#" id="fill-fail">use the declined card</a>.</p>
+          <div class="field"><label for="c-num">Card number</label><input id="c-num" inputmode="numeric" placeholder="4111 1111 1111 1111" autocomplete="off" maxlength="23"></div>
+          <div class="pay-two"><div class="field"><label for="c-exp">Expiry (MM/YY)</label><input id="c-exp" placeholder="12/30" autocomplete="off" maxlength="5"></div>
+          <div class="field"><label for="c-cvv">CVV</label><input id="c-cvv" inputmode="numeric" placeholder="123" autocomplete="off" maxlength="4"></div></div>
+          <div class="pay-test"><span>Test payment</span><div class="row">
+            <button type="button" class="chip" id="fill-ok">Success card</button>
+            <button type="button" class="chip" id="fill-fail">Declined card</button>
+          </div></div>
         </div>
         <div id="upi-form" class="hidden">
           <div class="field"><label for="u-id">UPI ID</label><input id="u-id" placeholder="name@okbank" autocomplete="off"></div>
-          <p class="small muted">Test mode. <a href="#" id="upi-ok">Use test@okbank (succeeds)</a> or <a href="#" id="upi-fail">fail@okbank (declined)</a>.</p>
+          <div class="pay-test"><span>Test payment</span><div class="row">
+            <button type="button" class="chip" id="upi-ok">test@okbank (succeeds)</button>
+            <button type="button" class="chip" id="upi-fail">fail@okbank (declined)</button>
+          </div></div>
         </div>
-        <button class="btn btn-primary" id="pay-btn" style="width:100%;margin-top:.7rem">Pay ${PC.money(a.fee)}</button>
+        <button class="btn btn-primary btn-lg" id="pay-btn">Pay ${PC.money(a.fee)}</button>
         <div class="msg" id="pay-msg" role="alert"></div>
-        <p class="small muted">Simulated gateway. No money moves. The server still validates the payment and reads the fee from its own database.</p>
-      </div>
+        <p class="pay-secure">${IC.lock}<span>Simulated gateway. No money moves. The server still validates the payment and reads the fee from its own database.</span></p>
+      </section>
     </div>`;
 
-  const set = (m) => { method = m; document.getElementById('m-card').classList.toggle('on', m === 'card'); document.getElementById('m-upi').classList.toggle('on', m === 'upi');
-    document.getElementById('card-form').classList.toggle('hidden', m !== 'card'); document.getElementById('upi-form').classList.toggle('hidden', m !== 'upi'); };
-  document.getElementById('m-card').onclick = () => set('card'); document.getElementById('m-upi').onclick = () => set('upi');
-  const fillCard = (n) => { document.getElementById('c-num').value = n; document.getElementById('c-exp').value = '12/30'; document.getElementById('c-cvv').value = '123'; };
-  document.getElementById('fill-ok').onclick = (e) => { e.preventDefault(); fillCard('4111 1111 1111 1111'); };
-  document.getElementById('fill-fail').onclick = (e) => { e.preventDefault(); fillCard('4000 0000 0000 0002'); };
-  document.getElementById('upi-ok').onclick = (e) => { e.preventDefault(); document.getElementById('u-id').value = 'test@okbank'; };
-  document.getElementById('upi-fail').onclick = (e) => { e.preventDefault(); document.getElementById('u-id').value = 'fail@okbank'; };
+  const set = (m) => { method = m; $('m-card').classList.toggle('on', m === 'card'); $('m-upi').classList.toggle('on', m === 'upi');
+    $('card-form').classList.toggle('hidden', m !== 'card'); $('upi-form').classList.toggle('hidden', m !== 'upi'); };
+  $('m-card').onclick = () => set('card'); $('m-upi').onclick = () => set('upi');
+  const fillCard = (n) => { $('c-num').value = n; $('c-exp').value = '12/30'; $('c-cvv').value = '123'; };
+  $('fill-ok').onclick = (e) => { e.preventDefault(); fillCard('4111 1111 1111 1111'); };
+  $('fill-fail').onclick = (e) => { e.preventDefault(); fillCard('4000 0000 0000 0002'); };
+  $('upi-ok').onclick = (e) => { e.preventDefault(); $('u-id').value = 'test@okbank'; };
+  $('upi-fail').onclick = (e) => { e.preventDefault(); $('u-id').value = 'fail@okbank'; };
 
-  document.getElementById('pay-btn').onclick = async () => {
-    const btn = document.getElementById('pay-btn'), msg = document.getElementById('pay-msg');
-    btn.disabled = true; btn.textContent = 'Verifying payment on the server...'; msg.textContent = '';
+  // typing help: groups of four digits and the slash in the expiry
+  $('c-num').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 19).replace(/(.{4})/g, '$1 ').trim(); });
+  $('c-exp').addEventListener('input', (e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 4); e.target.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; });
+  $('c-cvv').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); });
+
+  $('pay-btn').onclick = async () => {
+    const btn = $('pay-btn'), msg = $('pay-msg');
+    btn.disabled = true; btn.textContent = 'Verifying payment on the server...'; msg.className = 'msg'; msg.textContent = '';
     try {
       const body = { appointmentId: id, method };
-      if (method === 'card') body.card = { number: document.getElementById('c-num').value, expiry: document.getElementById('c-exp').value, cvv: document.getElementById('c-cvv').value };
-      else body.upi = document.getElementById('u-id').value;
+      if (method === 'card') body.card = { number: $('c-num').value, expiry: $('c-exp').value, cvv: $('c-cvv').value };
+      else body.upi = $('u-id').value;
       const r = await PC.api('POST', '/payments/pay', body);
       showSuccess(r.invoiceNo, r.txnRef);
     } catch (e) {
@@ -90,21 +139,23 @@
 
   function showSuccess(invoiceNo, txn) {
     root.innerHTML = `
-      <div class="card" style="text-align:center;padding:2rem">
-        <div class="badge done" style="font-size:.9rem">Payment verified</div>
-        <h1 style="font-size:2rem;margin:.8rem 0 .3rem">Your documents are ready</h1>
-        <p class="muted">${txn ? 'Transaction ' + PC.esc(txn) + '. ' : ''}Two separate files were created by the server.</p>
-        <div class="grid two" style="margin:1.5rem 0;text-align:left">
-          <div class="card"><h3>Prescription</h3><p class="small muted">Signed by our prototype signing authority, with a SHA-256 seal and a QR code anyone can scan to verify it.</p>
-            <button class="btn btn-primary" style="width:100%;margin-top:.8rem" id="dl-rx">Open prescription (PDF)</button></div>
-          <div class="card"><h3>Invoice ${PC.esc(invoiceNo || '')}</h3><p class="small muted">Numbered by the server, with the fee, payment method and transaction reference.</p>
-            <button class="btn btn-primary" style="width:100%;margin-top:.8rem" id="dl-inv">Open invoice (PDF)</button></div>
+      <div class="pay-done">
+        <div class="card pay-state">
+          <div class="pay-ic ok">${IC.check}</div>
+          <span class="badge done">Payment verified</span>
+          <h1 style="margin-top:.8rem">Your documents are ready</h1>
+          <p>${txn ? 'Transaction ' + PC.esc(txn) + '. ' : ''}Two separate files were created by the server.</p>
+          <div class="doc-pair">
+            <div class="card doc-card"><div class="di">${IC.doc}</div><h3>Prescription</h3><p>Signed by our prototype signing authority, with a SHA-256 seal and a QR code anyone can scan to verify it.</p>
+              <button class="btn btn-primary" id="dl-rx">Open prescription (PDF)</button></div>
+            <div class="card doc-card"><div class="di">${IC.receipt}</div><h3>Invoice ${PC.esc(invoiceNo || '')}</h3><p>Numbered by the server, with the fee, payment method and transaction reference.</p>
+              <button class="btn btn-primary" id="dl-inv">Open invoice (PDF)</button></div>
+          </div>
         </div>
-        <a class="btn btn-ghost" href="/patient.html#appts">Back to my consultations</a>
-        <div class="note-final" style="text-align:left"><b>Final version:</b> the doctor’s own licensed digital signature, documents stored in the cloud, and a payment record that cannot be edited.</div>
+        <div class="pay-back"><a class="btn btn-ghost" href="/patient.html#appts">Back to my consultations</a></div>
       </div>`;
-    document.getElementById('dl-rx').onclick = () => PC.openDoc(id, 'prescription');
-    document.getElementById('dl-inv').onclick = () => PC.openDoc(id, 'invoice');
+    $('dl-rx').onclick = () => PC.openDoc(id, 'prescription');
+    $('dl-inv').onclick = () => PC.openDoc(id, 'invoice');
   }
 })();
 </script>

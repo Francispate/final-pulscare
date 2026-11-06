@@ -1,3 +1,4 @@
+// PASTE AS: public/js/sos.js  (replaces the old file)  S3: restyled only (theme colours, light and dark, round icon button on phones). Behaviour is unchanged.
 // Emergency SOS: shows call buttons, finds the nearest hospitals from the phone/laptop location,
 // and opens Google Maps with directions. Location stays in the browser (not saved by Pulscare).
 (function () {
@@ -31,29 +32,39 @@
 
   const css = document.createElement('style');
   css.textContent = `
-  .sos-btn{background:#D93D45;color:#fff;border:0;border-radius:999px;padding:.42rem .95rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem;box-shadow:0 2px 10px rgba(217,61,69,.35)}
-  .sos-btn:hover{background:#B8303A}
+  .sos-btn{background:#D93D45;color:#fff;border:0;border-radius:999px;height:38px;padding:0 1rem;font-weight:800;font-size:.9rem;letter-spacing:.01em;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;box-shadow:0 4px 14px rgba(217,61,69,.4);transition:background .15s,transform .15s}
+  .sos-btn:hover{background:#B8303A;transform:translateY(-1px)}
+  .sos-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .sos-btn svg{width:18px;height:18px;flex:none}
   .sos-btn.float{position:fixed;top:12px;right:12px;z-index:90}
-  .sos-modal{position:fixed;inset:0;z-index:300;background:rgba(8,18,28,.7);display:grid;place-items:center;padding:1rem;overflow:auto}
-  .sos-card{background:#fff;border-radius:16px;width:min(520px,100%);max-height:94vh;overflow:auto;border-top:6px solid #D93D45;padding:1.2rem 1.3rem 1.3rem}
-  .sos-card h2{color:#B8303A;margin-bottom:.3rem}
+  .sos-modal{position:fixed;inset:0;z-index:300;background:rgba(0,24,17,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:grid;place-items:center;padding:1rem;overflow:auto}
+  .sos-card{background:var(--surface,#fff);color:var(--ink,#0B1F18);border:1px solid var(--line,#DCE5DA);border-radius:28px;width:min(520px,100%);max-height:94vh;overflow:auto;padding:1.3rem 1.4rem 1.4rem;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+  .sos-head{display:flex;align-items:center;justify-content:space-between;gap:.8rem}
+  .sos-title{display:flex;align-items:center;gap:.7rem}
+  .sos-badge{width:42px;height:42px;border-radius:50%;background:var(--coral-wash,#FCEBEC);color:var(--err-text,#B8303A);display:grid;place-items:center;flex:none}
+  .sos-badge svg{width:22px;height:22px}
+  .sos-card h2{color:var(--err-text,#B8303A);margin:0;font-size:1.35rem}
+  .sos-lead{margin-top:.8rem;font-weight:700}
   .sos-call{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.9rem 0}
-  .sos-call a{text-align:center;padding:.85rem .5rem;border-radius:10px;font-weight:700;text-decoration:none;font-size:1rem}
-  .sos-call .c112{background:#D93D45;color:#fff}.sos-call .c108{background:#12263A;color:#fff}
-  .sos-status{font-size:.9rem;color:var(--ink-soft);background:var(--paper);border-radius:8px;padding:.6rem .8rem;margin-bottom:.7rem}
-  .sos-status.err{background:var(--coral-wash);color:#8E2128}
-  .sos-list{list-style:none;display:grid;gap:.5rem;margin:.6rem 0}
-  .sos-hosp{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;border:1px solid var(--line);border-radius:10px;padding:.65rem .75rem}
-  .sos-hosp.first{border-color:#D93D45;background:#FFF7F7}
+  .sos-call a{display:flex;align-items:center;justify-content:center;text-align:center;min-height:56px;padding:.7rem .6rem;border-radius:18px;font-weight:800;text-decoration:none;font-size:1rem;transition:transform .15s,background .15s}
+  .sos-call a:hover{transform:translateY(-1px)}
+  .sos-call .c112{background:#D93D45;color:#fff}.sos-call .c112:hover{background:#B8303A}
+  .sos-call .c108{background:#1B4A3B;color:#fff}.sos-call .c108:hover{background:#11372C}
+  .sos-status{font-size:.9rem;color:var(--ink-soft,#3D4F46);background:var(--paper,#F3F6F1);border-radius:14px;padding:.65rem .85rem;margin-bottom:.7rem}
+  .sos-status.err{background:var(--coral-wash,#FCEBEC);color:var(--err-text,#B8303A);font-weight:600}
+  .sos-list{list-style:none;display:grid;gap:.5rem;margin:.6rem 0;padding:0}
+  .sos-hosp{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;border:1px solid var(--line,#DCE5DA);border-radius:16px;padding:.7rem .8rem}
+  .sos-hosp.first{border-color:#D93D45;background:var(--coral-wash,#FCEBEC)}
   .sos-hosp b{display:block;word-break:break-word}
-  .sos-tag{display:inline-block;background:#D93D45;color:#fff;font-size:.72rem;font-weight:700;border-radius:99px;padding:.05rem .5rem;margin-left:.3rem;vertical-align:middle}
-  .sos-big{display:flex;width:100%;margin-top:.4rem}
-  .sos-status.live{background:#E8F7F1;color:#0B6B55;font-weight:600}
-  .sos-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#16A34A;margin-right:.35rem;animation:sosPulse 1.2s infinite}
-  @keyframes sosPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.6)}100%{box-shadow:0 0 0 10px rgba(22,163,74,0)}}
-  .sos-map{width:100%;height:220px;border:0;border-radius:10px;margin:.4rem 0;background:#EEF2F4}
-  .sos-how{font-size:.85rem;background:#FFF4D6;border-radius:8px;padding:.6rem .8rem;margin:.5rem 0}
-  @media(max-width:520px){.sos-call{grid-template-columns:1fr}}
+  .sos-tag{display:inline-block;background:#D93D45;color:#fff;font-size:.72rem;font-weight:700;border-radius:99px;padding:.05rem .55rem;margin-left:.3rem;vertical-align:middle}
+  .sos-big{display:flex;width:100%;margin-top:.4rem;text-align:center}
+  .sos-status.live{background:var(--lime-wash,#EAF8DE);color:var(--ok-text,#1E6B12);font-weight:600}
+  .sos-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#6FD13A;margin-right:.35rem;animation:sosPulse 1.2s infinite}
+  @keyframes sosPulse{0%{box-shadow:0 0 0 0 rgba(111,209,58,.6)}100%{box-shadow:0 0 0 10px rgba(111,209,58,0)}}
+  .sos-map{width:100%;height:220px;border:0;border-radius:16px;margin:.4rem 0;background:var(--paper,#F3F6F1)}
+  .sos-how{font-size:.85rem;background:var(--amber-wash,#FDF1DC);color:var(--ink,#0B1F18);border:1px solid var(--amber-border,#E3B96C);border-radius:14px;padding:.65rem .85rem;margin:.5rem 0}
+  @media(max-width:560px){.sos-call{grid-template-columns:1fr}.sos-btn{width:38px;padding:0}.sos-btn .sos-label{display:none}}
+  @media (prefers-reduced-motion:reduce){.sos-dot{animation:none}.sos-btn,.sos-call a{transition:none}}
   `;
   document.head.appendChild(css);
 
@@ -96,6 +107,7 @@
     }).filter(Boolean).sort((a, b) => a.km - b.km).slice(0, 8);
   }
 
+  const SOS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
   let modal = null;
   function close() { stopWatch(); if (modal) { modal.remove(); modal = null; document.removeEventListener('keydown', onKey); } }
   function onKey(e) { if (e.key === 'Escape') close(); }
@@ -106,8 +118,8 @@
     modal = document.createElement('div');
     modal.className = 'sos-modal'; modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-label', t.title);
     modal.innerHTML = `<div class="sos-card">
-      <div class="row spread"><h2>${esc(t.title)}</h2><button class="btn btn-ghost btn-sm" id="sos-x">${esc(t.close)}</button></div>
-      <p><b>${esc(t.call)}</b></p>
+      <div class="sos-head"><div class="sos-title"><span class="sos-badge" aria-hidden="true">${SOS_ICON}</span><h2>${esc(t.title)}</h2></div><button class="btn btn-ghost btn-sm" id="sos-x">${esc(t.close)}</button></div>
+      <p class="sos-lead">${esc(t.call)}</p>
       <div class="sos-call"><a class="c112" href="tel:112">${esc(t.c112)}</a><a class="c108" href="tel:108">${esc(t.c108)}</a></div>
       <div class="sos-status" id="sos-status" role="status">${esc(t.finding)}</div>
       <div id="sos-body"></div>
@@ -201,7 +213,7 @@
     const b = document.createElement('button');
     b.id = 'sos-btn'; b.className = 'sos-btn'; b.type = 'button';
     b.setAttribute('aria-label', 'Emergency SOS');
-    b.innerHTML = `<span aria-hidden="true">&#9888;</span> SOS · ${esc(L().sos)}`;
+    b.innerHTML = `${SOS_ICON}<span class="sos-label">SOS · ${esc(L().sos)}</span>`;
     b.onclick = open;
     const slot = document.querySelector('.nav-right');
     if (slot) slot.insertBefore(b, slot.firstChild); else { b.classList.add('float'); document.body.appendChild(b); }

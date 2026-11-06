@@ -1,47 +1,76 @@
-<!-- PASTE AS: public/verify.html  (replaces the old file)  Day 8: clear "Not valid" result, covers both the data check and the PDF file check. -->
+<!-- PASTE AS: public/verify.html  (replaces the old file)  S12: public result page. Look and layout only; the id and the checking logic are unchanged. Needs the new public/css/verify.css. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Verify prescription | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/verify.css">
 </head>
 <body>
-<div id="chrome"></div>
-<main class="wrap" style="max-width:640px">
-  <div class="card" id="result"><p class="muted">Checking the signature...</p></div>
-</main>
-<script src="/socket.io/socket.io.js"></script>
+<div class="vf-page">
+  <header class="vf-top">
+    <a class="vf-brand" href="/" aria-label="Pulscare home">
+      <span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg></span>
+      <span>Puls<em>care</em></span>
+    </a>
+  </header>
+  <main class="vf-main">
+    <div class="card vf-card" id="result" aria-live="polite"><div class="vf-spin" aria-hidden="true"></div><p class="vf-lead">Checking the signature...</p></div>
+  </main>
+</div>
 <script src="/js/api.js"></script>
 <script src="/js/ui.js"></script>
 <script>
-  PCUI.mount({ step: 8 });
   const h = new URLSearchParams(location.search).get('h');
   const el = document.getElementById('result');
+  const svg = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const IC = {
+    check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+    cross: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+    info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/>'),
+    shield: svg('<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>')
+  };
+  const foot = `<div class="vf-foot">${IC.shield}<span>Checked by Pulscare</span></div>`;
+  const nice = (s) => { const d = new Date(s); return isNaN(d) ? String(s || '') : d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' IST'; };
+
   (async () => {
-    if (!h) { el.innerHTML = '<h2>No signature supplied</h2><p>Scan the QR code on a Pulscare prescription to open this page.</p>'; return; }
-    let r;
-    try { r = await PC.api('GET', '/verify/' + encodeURIComponent(h)); }
-    catch (e) { el.innerHTML = '<span class="badge pending">Could not check</span><h2 style="margin-top:.6rem">We could not reach the server</h2><p>Check your connection and try again.</p>'; return; }
-    if (!r.valid) {
-      el.innerHTML = `<span class="badge alert">Not valid</span><h2 style="margin-top:.6rem">This prescription is NOT valid</h2>
-        <p>${PC.esc(r.reason || 'The content does not match its signature, so it may have been changed.')}</p>
-        <p class="small muted" style="margin-top:.8rem">Do not rely on this document. Ask the doctor or Pulscare support for a new, verified copy.</p>`;
+    // No signature in the link: neutral
+    if (!h) {
+      el.innerHTML = `<div class="vf-ic info">${IC.info}</div><h1>No signature supplied</h1>
+        <p class="vf-lead">Scan the QR code on a Pulscare prescription to open this page.</p>${foot}`;
       return;
     }
-    el.innerHTML = `<span class="badge done">Valid</span>
-      <h2 style="margin:.6rem 0">This prescription is genuine and unaltered</h2>
-      <table><tbody>
-        <tr><td class="muted">Prescription</td><td><b>${PC.esc(r.rxId)}</b></td></tr>
-        <tr><td class="muted">Doctor</td><td>${PC.esc(r.doctor)}</td></tr>
-        <tr><td class="muted">Patient</td><td>${PC.esc(r.patient)}</td></tr>
-        <tr><td class="muted">Issued</td><td>${PC.esc(r.issuedAt)}</td></tr>
-        <tr><td class="muted">Signed by</td><td>${PC.esc(r.signedBy)}</td></tr>
-      </tbody></table>
-      <p class="small muted" style="margin-top:1rem">Two checks passed: the server recalculated the SHA-256 seal from the stored prescription and it matches the one printed on the PDF, and the stored PDF file is exactly the one that was issued.</p>
-      <div class="note-final"><b>Final version:</b> signed with the doctor’s licensed digital certificate.</div>`;
+    let r;
+    try { r = await PC.api('GET', '/verify/' + encodeURIComponent(h)); }
+    catch (e) {
+      // Server error: neutral
+      el.innerHTML = `<div class="vf-ic info">${IC.info}</div><h1>We could not reach the server</h1>
+        <p class="vf-lead">The prescription could not be checked right now. Check your connection and try again.</p>
+        <div class="vf-actions"><button class="btn btn-ghost" type="button" onclick="location.reload()">Try again</button></div>${foot}`;
+      return;
+    }
+    // Not valid: coral
+    if (!r.valid) {
+      el.innerHTML = `<div class="vf-ic bad">${IC.cross}</div><h1>This prescription is NOT valid</h1>
+        <div class="vf-reason" role="alert">${PC.esc(r.reason || 'The content does not match its signature, so it may have been changed.')}</div>
+        <p class="vf-warn">Do not rely on this document. Ask the doctor or Pulscare support for a new, verified copy.</p>${foot}`;
+      return;
+    }
+    // Valid: lime
+    el.innerHTML = `<div class="vf-ic ok">${IC.check}</div><span class="badge done">Valid</span>
+      <h1>This prescription is genuine and unaltered</h1>
+      <dl class="vf-rows">
+        <div><dt>Prescription</dt><dd>${PC.esc(r.rxId)}</dd></div>
+        <div><dt>Doctor</dt><dd>${PC.esc(r.doctor)}</dd></div>
+        <div><dt>Patient</dt><dd>${PC.esc(r.patient)}</dd></div>
+        <div><dt>Issued</dt><dd>${PC.esc(nice(r.issuedAt))}</dd></div>
+        <div><dt>Signed by</dt><dd>${PC.esc(r.signedBy)}</dd></div>
+      </dl>
+      <div class="vf-checks">${IC.shield}<span>Two checks passed: the server recalculated the SHA-256 seal from the stored prescription and it matches the one printed on the PDF, and the stored PDF file is exactly the one that was issued.</span></div>${foot}`;
   })();
 </script>
 </body>

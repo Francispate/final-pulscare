@@ -5,57 +5,139 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    .adm-tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
-    .adm-tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:999px;padding:.4rem .95rem;font:inherit;font-weight:600;cursor:pointer}
-    .adm-tabs button[aria-selected="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
-    .stats{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));margin-bottom:1rem}
-    .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem}
-    .stat b{display:block;font-size:1.6rem;font-family:Fraunces,serif}
-    .stat span{font-size:.82rem;color:var(--muted)}
-    .stat.warn b{color:var(--coral)}
-    .tbl-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
-    .tbl-wrap table{width:100%;border-collapse:collapse;min-width:640px}
-    .tbl-wrap th,.tbl-wrap td{text-align:left;padding:.55rem .75rem;border-bottom:1px solid var(--line);font-size:.88rem;vertical-align:top}
-    .tbl-wrap th{font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-    .adm-grid{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-    .adm-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.8rem}
-    .cred{background:#FFF8E1;border:1px solid #F3D88A;border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem}
-    .cred code{font-size:1.05rem;font-weight:700;letter-spacing:.04em}
+    /* S14: admin. Internal dashboard feel: dark-green count cards, compact tables. Colours come from the theme tokens, so dark mode works. */
+    .adm-wrap{padding-inline:clamp(1rem,3vw,2.5rem)}
+    #login[hidden],#panel[hidden]{display:none}
+
+    /* login: a small dark-green card */
+    #login{max-width:440px;margin:clamp(1rem,7vh,4.5rem) auto 0}
+    .adm-login{background:var(--green-800);color:#fff;border-radius:var(--radius-lg);padding:2rem 1.75rem;box-shadow:var(--shadow-card);border:1px solid rgba(138,235,76,.18)}
+    .adm-lock{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;background:rgba(138,235,76,.14);color:var(--lime-500);margin-bottom:1.1rem}
+    .adm-lock svg{width:28px;height:28px}
+    .adm-login h1{font-size:1.7rem;color:#fff}
+    .adm-lead{color:rgba(255,255,255,.75);font-size:.9rem;margin:.4rem 0 1.5rem}
+    .adm-login label{display:block;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.88);margin-bottom:.3rem}
+    .adm-login input{min-height:48px;background:var(--green-900);color:#fff;border:1px solid rgba(255,255,255,.2)}
+    .adm-login input:focus{outline:0;border-color:var(--lime-500);box-shadow:0 0 0 3px rgba(138,235,76,.3)}
+    .adm-login .btn-primary{width:100%;min-height:48px;margin-top:.3rem}
+    .adm-login .btn:focus-visible{outline:3px solid var(--lime-500);outline-offset:2px}
+    .adm-login .msg.err{color:#FF8F96}
+
+    /* panel header */
+    .adm-head{margin-bottom:1.3rem}
+    .adm-head .tag{margin-bottom:.7rem}
+    .adm-head h1{font-size:clamp(1.8rem,4vw,2.5rem)}
+    .adm-sub{color:var(--ink-soft);max-width:62ch;margin-top:.45rem}
+
+    /* count cards */
+    .stats{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:1.1rem}
+    .stat{display:flex;flex-direction:column;gap:.15rem;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:.85rem 1rem}
+    .stat b{font-size:1.55rem;font-weight:800;line-height:1.15;color:var(--ink)}
+    .stat span{font-size:.82rem;color:var(--muted);line-height:1.35}
+    .stat.warn b{color:var(--err-text)}
+    .stats.top .stat{background:var(--green-800);border:1px solid rgba(138,235,76,.16);border-radius:var(--radius-md);padding:1.15rem 1.3rem;box-shadow:var(--shadow-card)}
+    .stats.top .stat b{font-size:clamp(1.8rem,3.4vw,2.3rem);color:var(--lime-500)}
+    .stats.top .stat span{color:rgba(255,255,255,.75)}
+    .stats.top .stat .stat-l{font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.9)}
+
+    /* tabs */
+    .adm-tabs{display:inline-flex;gap:.25rem;padding:.3rem;margin:.4rem 0 1.2rem;max-width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-pill);box-shadow:var(--shadow-card)}
+    .adm-tabs button{flex:none;border:0;background:transparent;color:var(--ink-soft);border-radius:var(--radius-pill);padding:.5rem 1.2rem;min-height:44px;font:inherit;font-weight:700;white-space:nowrap;cursor:pointer}
+    .adm-tabs button:hover{color:var(--ink);background:var(--wash-2)}
+    .adm-tabs button[aria-selected="true"]{background:var(--green-800);color:#fff;box-shadow:inset 0 0 0 1px rgba(138,235,76,.35)}
+    .adm-tabs button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+    .adm-h{font-size:1.05rem;margin:1.5rem 0 .7rem}
+    .adm-h:first-child{margin-top:0}
+    #adm-msg:empty{display:none}
+
+    /* tables: scroll sideways on small screens */
+    .tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-card)}
+    .tbl-wrap table{width:100%;border-collapse:collapse;min-width:760px}
+    .tbl-wrap th,.tbl-wrap td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--row-line);font-size:.88rem;vertical-align:top}
+    .tbl-wrap th{font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--wash-2);white-space:nowrap}
+    .tbl-wrap tbody tr:last-child td{border-bottom:0}
+    .tbl-wrap tbody tr:hover td{background:var(--wash-2)}
     .mono{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;color:var(--ink-soft);word-break:break-word}
+
+    /* filters and forms */
+    .adm-grid{display:grid;gap:.6rem 1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+    .adm-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.9rem}
+    .adm-bar select,.adm-bar input{width:auto;min-height:44px}
+    .adm-bar .btn{min-height:44px}
+    #add-form-card{margin-bottom:1.1rem}
+    #add-form-card summary{cursor:pointer;font-weight:800;font-size:1.02rem;min-height:44px;display:flex;align-items:center;gap:.5rem}
+    #add-form-card summary:focus-visible{outline:3px solid var(--link);outline-offset:3px;border-radius:8px}
+    #add-form-card .field label{display:block;font-size:.84rem;font-weight:600;color:var(--ink-soft);margin-bottom:.25rem}
+    #add-form-card input{min-height:44px}
+    .cred{background:var(--amber-wash);color:var(--ink);border:1px solid var(--amber-border);border-radius:var(--radius-sm);padding:.9rem 1.1rem;margin-bottom:1.1rem;line-height:1.7}
+    .cred code{font-size:1.05rem;font-weight:800;letter-spacing:.04em;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.1rem .5rem}
+
+    /* enable / disable toggle (still a button with the same data-act, so the script is unchanged) */
+    .sw{position:relative;flex:none;width:52px;height:30px;border:0;padding:0;border-radius:var(--radius-pill);background:var(--switch-off);cursor:pointer;transition:background .2s}
+    .sw .sw-k{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+    .sw.on{background:var(--lime-600)}
+    .sw.on .sw-k{transform:translateX(22px)}
+    .sw:focus-visible{outline:3px solid var(--link);outline-offset:3px}
+    .sw:disabled{opacity:.55;cursor:progress}
+    #pw-dlg{border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface);color:var(--ink);padding:1.5rem;width:min(440px,calc(100% - 2rem));margin:auto;box-shadow:var(--shadow-card)}
+    #pw-dlg::backdrop{background:rgba(0,24,17,.6)}
+    #pw-dlg h3{margin-bottom:.4rem}
+    #pw-dlg .field{margin:.8rem 0 0}
+    #pw-dlg label{display:block;font-size:.84rem;font-weight:600;color:var(--ink-soft);margin-bottom:.25rem}
+    #pw-dlg input{min-height:46px}
+    #pw-dlg .pw-show{display:flex;align-items:center;gap:.5rem;margin-top:.8rem;font-weight:500;cursor:pointer}
+    #pw-dlg .pw-show input{width:auto;min-height:0}
+    #pw-dlg .pw-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap}
+    @media (prefers-reduced-motion:reduce){.sw,.sw .sw-k{transition:none}}
+    @media (max-width:600px){.adm-bar select,.adm-bar input{flex:1 1 140px}}
   </style>
 </head>
 <body>
 <div id="chrome"></div>
-<main class="wrap" style="max-width:1100px">
+<main class="wrap adm-wrap">
 
-  <section id="login" hidden style="max-width:420px;margin:2rem auto">
-    <div class="card">
-      <h1 style="font-size:1.6rem">Admin login</h1>
-      <p class="muted small" style="margin:.3rem 0 1rem">For administrators only. Admin accounts are created by the person running the server.</p>
+  <section id="login" hidden>
+    <div class="adm-login">
+      <div class="adm-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <h1>Admin login</h1>
+      <p class="adm-lead">For administrators only. Admin accounts are created by the person running the server.</p>
       <div class="field"><label for="a-email">Email</label><input id="a-email" type="email" autocomplete="username"></div>
       <div class="field"><label for="a-pass">Password</label><input id="a-pass" type="password" autocomplete="current-password"></div>
-      <button class="btn btn-primary" id="a-go" style="width:100%">Log in</button>
+      <button class="btn btn-primary" id="a-go">Log in</button>
       <div class="msg" id="a-msg" role="alert"></div>
     </div>
   </section>
 
   <section id="panel" hidden>
-    <h1 style="font-size:1.9rem">Administration</h1>
-    <p class="muted small">You can see who did what and when. You cannot read chats, medical records or anyone's PDFs.</p>
-    <div class="adm-tabs" role="tablist" id="tabs">
-      <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
-      <button role="tab" data-tab="doctors" aria-selected="false">Doctors</button>
-      <button role="tab" data-tab="appointments" aria-selected="false">Appointments</button>
-      <button role="tab" data-tab="payments" aria-selected="false">Payments</button>
-      <button role="tab" data-tab="audit" aria-selected="false">Audit log</button>
+    <div class="adm-head">
+      <span class="tag">Admin</span>
+      <h1>Administration</h1>
+      <p class="adm-sub">You can see who did what and when. You cannot read chats, medical records or anyone's PDFs.</p>
     </div>
-    <div class="msg" id="adm-msg" role="alert"></div>
+    <div class="stats top" id="top-stats" aria-live="polite"></div>
+    <div class="adm-tabs" role="tablist" id="tabs" aria-label="Admin sections">
+      <button role="tab" data-tab="people" aria-selected="true">People</button>
+      <button role="tab" data-tab="money" aria-selected="false">Consultations and money</button>
+      <button role="tab" data-tab="security" aria-selected="false">Security, last 24 hours</button>
+    </div>
+    <div class="msg err" id="adm-msg" role="alert"></div>
     <div id="view"></div>
   </section>
 </main>
+
+<dialog id="pw-dlg" aria-labelledby="pw-t">
+  <h3 id="pw-t">Change password</h3>
+  <p class="small muted">Type the new password. The old one stops working straight away. Tell the doctor the new password yourself.</p>
+  <div class="field"><label for="pw-new">New password (8 to 72 characters)</label><input id="pw-new" type="password" autocomplete="new-password" maxlength="72"></div>
+  <div class="field"><label for="pw-again">Type it again</label><input id="pw-again" type="password" autocomplete="new-password" maxlength="72"></div>
+  <label class="pw-show"><input type="checkbox" id="pw-show"> Show password</label>
+  <div class="msg err" id="pw-msg" role="alert"></div>
+  <div class="pw-actions"><button class="btn btn-ghost" id="pw-cancel" type="button">Cancel</button><button class="btn btn-primary" id="pw-save" type="button">Set password</button></div>
+</dialog>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/api.js"></script>
@@ -67,6 +149,15 @@
   const say = (t, good) => { const m = $('adm-msg'); m.className = 'msg ' + (good ? 'ok' : 'err'); m.textContent = t || ''; };
   const table = (head, body) => `<div class="tbl-wrap"><table><thead><tr>${head.map((x) => `<th>${x}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td colspan="${head.length}" class="muted">Nothing to show.</td></tr>`}</tbody></table></div>`;
   const badge = (cls, t) => `<span class="badge ${cls}">${esc(t)}</span>`;
+  const card = (n, label, warn) => `<div class="stat ${warn && n > 0 ? 'warn' : ''}"><b>${n}</b><span>${label}</span></div>`;
+  const topCard = (n, label, sub) => `<div class="stat"><span class="stat-l">${label}</span><b>${n}</b>${sub ? `<span>${sub}</span>` : ''}</div>`;
+  const showCred = (headline, id, pw) => {
+    $('cred').innerHTML = `<div class="cred" role="status"><b>${esc(headline)}</b> Write these down now. The password is not shown again.<br>
+      Doctor ID: <code>${esc(id)}</code> &nbsp; Password: <code>${esc(pw)}</code> <button class="btn btn-ghost btn-sm" id="cred-copy">Copy</button></div>`;
+    $('cred-copy').onclick = async () => { try { await navigator.clipboard.writeText(`Doctor ID: ${id}\nPassword: ${pw}`); $('cred-copy').textContent = 'Copied'; } catch { $('cred-copy').textContent = 'Select and copy by hand'; } };
+    $('cred').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+  const paintTop = (s) => { $('top-stats').innerHTML = topCard(s.patients, 'Patients') + topCard(s.doctors.active, 'Doctors', `${s.doctors.online} online now · ${s.doctors.disabled} disabled`) + topCard(s.appointments.total, 'Consultations', `${s.appointments.paid} paid`) + topCard(PC.money(s.payments.revenue), 'Revenue', 'Payments received (demo)'); };
 
   /* ---------- login ---------- */
   function showLogin() {
@@ -85,18 +176,24 @@
 
   /* ---------- tabs ---------- */
   const tabs = {
-    async overview(v) {
-      const s = await PC.api('GET', '/admin/stats');
-      const st = s.appointments.byStatus, l = s.last24h;
-      const card = (n, label, warn) => `<div class="stat ${warn && n > 0 ? 'warn' : ''}"><b>${n}</b><span>${label}</span></div>`;
-      v.innerHTML = `<h3 style="margin-bottom:.5rem">People</h3><div class="stats">
-          ${card(s.patients, 'Patients')}${card(s.doctors.active, 'Active doctors')}${card(s.doctors.online, 'Doctors online now')}${card(s.doctors.disabled, 'Disabled doctors')}</div>
-        <h3 style="margin-bottom:.5rem">Consultations and money</h3><div class="stats">
-          ${card(s.appointments.total, 'Appointments')}${card(st.booked || 0, 'Booked / waiting')}${card(st.in_progress || 0, 'In a call now')}${card(st.awaiting_payment || 0, 'Awaiting payment')}
-          ${card(s.appointments.paid, 'Paid consultations')}${card(PC.money(s.payments.revenue), 'Payments received (demo)')}${card(s.payments.failedCount, 'Failed payments')}${card(s.queueWaiting, 'Waiting in a queue now')}</div>
-        <h3 style="margin-bottom:.5rem">Security, last 24 hours</h3><div class="stats">
-          ${card(l.loginsOk, 'Successful logins')}${card(l.loginsFailed, 'Wrong passwords', true)}${card(l.loginsBlocked, 'Logins blocked', true)}
-          ${card(l.refusedDownloads, 'Refused PDF downloads', true)}${card(l.integrityFailures, 'Documents that failed integrity', true)}${card(l.recordViews, 'Medical record views by doctors')}${card(l.recordRefusals, 'Refused record attempts', true)}</div>`;
+    // S14: the three tabs reuse the same data calls as before. /admin/stats is fetched once per open() and kept on v._s.
+    async people(v) { await tabs.doctors(v); },
+
+    async money(v) {
+      const s = v._s, st = s.appointments.byStatus;
+      v.innerHTML = `<div class="stats">${card(s.appointments.total, 'Appointments')}${card(st.booked || 0, 'Booked / waiting')}${card(st.in_progress || 0, 'In a call now')}${card(st.awaiting_payment || 0, 'Awaiting payment')}
+          ${card(s.appointments.paid, 'Paid consultations')}${card(s.payments.failedCount, 'Failed payments', true)}${card(s.queueWaiting, 'Waiting in a queue now')}</div>
+        <h3 class="adm-h">Appointments</h3><div id="m-appts"></div>
+        <h3 class="adm-h">Payments</h3><div id="m-pays"></div>`;
+      await Promise.all([tabs.appointments($('m-appts')), tabs.payments($('m-pays'))]);
+    },
+
+    async security(v) {
+      const l = v._s.last24h;
+      v.innerHTML = `<div class="stats">${card(l.loginsOk, 'Successful logins')}${card(l.loginsFailed, 'Wrong passwords', true)}${card(l.loginsBlocked, 'Logins blocked', true)}
+          ${card(l.refusedDownloads, 'Refused PDF downloads', true)}${card(l.integrityFailures, 'Documents that failed integrity', true)}${card(l.recordViews, 'Medical record views by doctors')}${card(l.recordRefusals, 'Refused record attempts', true)}</div>
+        <h3 class="adm-h">Audit log</h3><div id="s-audit"></div>`;
+      await tabs.audit($('s-audit'));
     },
 
     async doctors(v) {
@@ -108,10 +205,11 @@
         <td>${esc(d.department)}</td><td>${PC.money(d.fee)}</td>
         <td>${d.disabled ? badge('alert', 'Disabled') + (d.disabledReason ? `<div class="small muted">${esc(d.disabledReason)}</div>` : '') : d.online ? badge('online', 'Online') : badge('pending', 'Offline')}${d.inCall ? '<div class="small muted">In a call</div>' : ''}</td>
         <td>${d.appointments}</td>
-        <td>${d.disabled ? `<button class="btn btn-ghost btn-sm" data-act="enable" data-id="${esc(d.id)}">Enable</button>` : `<button class="btn btn-ghost btn-sm" data-act="disable" data-id="${esc(d.id)}">Disable</button>`}</td></tr>`).join('');
+        <td><button type="button" class="sw ${d.disabled ? '' : 'on'}" role="switch" aria-checked="${d.disabled ? 'false' : 'true'}" aria-label="${esc(d.name)}: ${d.disabled ? 'disabled, press to enable' : 'active, press to disable'}" data-act="${d.disabled ? 'enable' : 'disable'}" data-id="${esc(d.id)}"><span class="sw-k"></span></button></td>
+        <td><button type="button" class="btn btn-ghost btn-sm" data-act="reset-pw" data-id="${esc(d.id)}">Change password</button></td></tr>`).join('');
       v.innerHTML = `<div id="cred"></div>
-        <details class="card" style="margin-bottom:1rem"><summary style="cursor:pointer;font-weight:700">Add a doctor</summary>
-          <div class="adm-grid" style="margin:.8rem 0" id="add-form">
+        <details class="card" id="add-form-card"><summary>Add a doctor</summary>
+          <div class="adm-grid" style="margin:1rem 0" id="add-form">
             <div class="field"><label for="d-name">Full name</label><input id="d-name" maxlength="80" placeholder="Dr. Anita Rao"></div>
             <div class="field"><label for="d-email">Email</label><input id="d-email" type="email" maxlength="120"></div>
             <div class="field"><label for="d-dept">Department</label><input id="d-dept" list="dept-list" maxlength="40"><datalist id="dept-list">${depts.map((x) => `<option value="${esc(x)}">`).join('')}</datalist></div>
@@ -121,9 +219,9 @@
             <div class="field" style="grid-column:1/-1"><label for="d-about">About (optional)</label><input id="d-about" maxlength="300"></div>
           </div>
           <button class="btn btn-primary" data-act="add">Create doctor account</button>
-          <p class="small muted" style="margin-top:.5rem">A one-time password is generated and shown once. Give it to the doctor, who can log in with their Doctor ID.</p>
+          <p class="small muted" style="margin-top:.7rem">A one-time password is generated and shown once. Give it to the doctor, who can log in with their Doctor ID.</p>
         </details>
-        ${table(['ID / licence', 'Doctor', 'Department', 'Fee', 'Status', 'Appts', ''], rowsHtml)}`;
+        ${table(['ID / licence', 'Doctor', 'Department', 'Fee', 'Status', 'Appts', 'Access', 'Password'], rowsHtml)}`;
       v._docs = docs;
     },
 
@@ -171,7 +269,7 @@
     say('');
     document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
     const v = $('view'); v.innerHTML = '<p class="muted small">Loading...</p>';
-    try { await tabs[name](v); v.dataset.tab = name; } catch (e) { v.innerHTML = ''; say(e.message); }
+    try { v._s = await PC.api('GET', '/admin/stats'); paintTop(v._s); await tabs[name](v); v.dataset.tab = name; } catch (e) { v.innerHTML = ''; say(e.message); }
   }
 
   /* ---------- doctor actions ---------- */
@@ -183,10 +281,13 @@
         const val = (id) => $(id).value;
         b.disabled = true; say('');
         const r = await PC.api('POST', '/admin/doctors', { fullName: val('d-name'), email: val('d-email'), department: val('d-dept'), licenseId: val('d-lic'), fee: Number(val('d-fee')), qualification: val('d-qual'), about: val('d-about') });
-        await open('doctors');
-        $('cred').innerHTML = `<div class="cred" role="status"><b>${esc(r.doctor.name)} was created.</b> Write these down now. The password is not shown again.<br>
-          Doctor ID: <code>${esc(r.doctor.id)}</code> &nbsp; Password: <code>${esc(r.password)}</code> <button class="btn btn-ghost btn-sm" id="cred-copy">Copy</button></div>`;
-        $('cred-copy').onclick = async () => { try { await navigator.clipboard.writeText(`Doctor ID: ${r.doctor.id}\nPassword: ${r.password}`); $('cred-copy').textContent = 'Copied'; } catch { $('cred-copy').textContent = 'Select and copy by hand'; } };
+        await open('people');
+        showCred(`${r.doctor.name} was created.`, r.doctor.id, r.password);
+        return;
+      }
+      if (act === 'reset-pw') {
+        const d = (v._docs || []).find((x) => x.id === b.dataset.id); if (!d) return;
+        openPw(d);
         return;
       }
       if (act === 'disable') {
@@ -196,7 +297,7 @@
         if (reason === null) return;
         b.disabled = true;
         const r = await PC.api('POST', `/admin/doctors/${encodeURIComponent(d.id)}/disable`, { reason });
-        await open('doctors');
+        await open('people');
         say(`${d.name} is disabled.${r.cancelledBookings ? ' ' + r.cancelledBookings + ' upcoming booking(s) were cancelled and the patients told.' : ''}`, true);
         return;
       }
@@ -204,11 +305,37 @@
         const d = (v._docs || []).find((x) => x.id === b.dataset.id); if (!d || !confirm(`Enable ${d.name} again? They will need to log in and go online themselves.`)) return;
         b.disabled = true;
         await PC.api('POST', `/admin/doctors/${encodeURIComponent(d.id)}/enable`);
-        await open('doctors');
+        await open('people');
         say(`${d.name} is enabled again.`, true);
       }
     } catch (err) { b.disabled = false; say(err.message); }
   }
+
+  /* ---------- change a doctor's password (the admin types it) ---------- */
+  let pwDoc = null;
+  function openPw(d) {
+    pwDoc = d;
+    $('pw-t').textContent = 'Change password for ' + d.name;
+    ['pw-new', 'pw-again'].forEach((i) => { $(i).value = ''; $(i).type = 'password'; });
+    $('pw-show').checked = false; $('pw-msg').textContent = '';
+    $('pw-dlg').showModal(); $('pw-new').focus();
+  }
+  async function savePw() {
+    const a = $('pw-new').value, m = $('pw-msg');
+    if (a.length < 8 || a.length > 72) { m.textContent = 'Use 8 to 72 characters.'; return; }
+    if (a !== $('pw-again').value) { m.textContent = 'The two passwords do not match.'; return; }
+    $('pw-save').disabled = true; m.textContent = '';
+    try {
+      const r = await PC.api('POST', `/admin/doctors/${encodeURIComponent(pwDoc.id)}/reset-password`, { password: a });
+      $('pw-dlg').close(); $('pw-new').value = ''; $('pw-again').value = '';
+      say(`Password changed for ${r.doctor.name} (${r.doctor.id}). Tell them the new password.`, true);
+    } catch (e) { m.textContent = e.message; }
+    $('pw-save').disabled = false;
+  }
+  $('pw-save').onclick = savePw;
+  $('pw-cancel').onclick = () => $('pw-dlg').close();
+  $('pw-show').onchange = (e) => { ['pw-new', 'pw-again'].forEach((i) => { $(i).type = e.target.checked ? 'text' : 'password'; }); };
+  ['pw-new', 'pw-again'].forEach((i) => { $(i).onkeydown = (e) => { if (e.key === 'Enter') savePw(); }; });
 
   /* ---------- start ---------- */
   if (!PC.token || !PC.user || PC.user.role !== 'admin') { showLogin(); return; }
@@ -216,7 +343,7 @@
   $('panel').hidden = false;
   $('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-tab]'); if (b) open(b.dataset.tab); });
   $('view').addEventListener('click', onViewClick);
-  open('overview');
+  open('people');
 })();
 </script>
 </body>

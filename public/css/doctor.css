@@ -1,0 +1,78 @@
+/* PASTE AS: public/css/doctor.css  (new file)  S9: doctor dashboard extras. Loaded after style.css and dash.css, which supply the heading, avatar, chip, badge, appointment-row and empty-state styles.
+   Colours come from tokens only, so it works in light and dark mode. */
+
+/* ---------- Online switch box ---------- */
+.online-box { display: flex; align-items: center; gap: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: .8rem 1.1rem; box-shadow: var(--shadow-card); transition: background .2s, border-color .2s; }
+.online-box:has(.switch.on) { background: var(--lime-wash); border-color: var(--wash-border); }
+.online-box .ob-text { display: grid; line-height: 1.25; }
+.online-box .ob-text b { font-size: 1.05rem; }
+.online-box .ob-text span { font-size: .8rem; color: var(--muted); }
+.online-box .switch { width: 76px; height: 40px; flex: none; cursor: pointer; }
+.online-box .switch::after { top: 4px; left: 4px; width: 32px; height: 32px; }
+.online-box .switch.on::after { transform: translateX(36px); }
+.online-box .switch:focus-visible { outline: 3px solid var(--link); outline-offset: 3px; }
+
+/* ---------- Notice strip ---------- */
+#dbanner:not(:empty) { margin-bottom: 1.1rem; }
+#dbanner .banner { margin-bottom: 0; border-radius: var(--radius-md); padding: 1rem 1.25rem; }
+
+/* ---------- Two-column layout ---------- */
+.dgrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 1.1rem; align-items: start; margin-bottom: 1.4rem; }
+.dcol { display: grid; gap: 1.1rem; min-width: 0; }
+.dcol .card h2 { font-size: 1.15rem; margin: 0; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: .7rem; }
+.count { min-width: 26px; height: 26px; padding: 0 .55rem; border-radius: var(--radius-pill); background: var(--wash-2); color: var(--ink-soft); font-size: .8rem; font-weight: 800; display: inline-grid; place-items: center; }
+.count.hot { background: var(--lime-500); color: var(--on-lime); }
+.sec-title { font-size: 1.3rem; font-weight: 800; margin: 0 0 .8rem; }
+
+/* ---------- Incoming request cards ---------- */
+.req-list, .wq-list, .slot-list { display: grid; gap: .7rem; }
+.req { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .8rem 1rem; align-items: center; padding: .9rem 1rem; border: 1px solid var(--amber-border); background: var(--amber-wash); border-radius: var(--radius-md); }
+.req .av { width: 46px; height: 46px; font-size: .95rem; }
+.req-main { min-width: 0; display: grid; gap: .3rem; }
+.req-why { font-size: .88rem; color: var(--ink-soft); overflow-wrap: anywhere; }
+.req-note { font-size: .8rem; font-weight: 600; }
+.req-note.ok { color: var(--ok-text); }
+.req-note.no { color: var(--err-text, var(--coral)); }
+.req-actions { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
+.req-actions .btn { min-height: 44px; }
+
+/* ---------- Waiting queue items ---------- */
+.wq-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .8rem 1rem; align-items: center; padding: .85rem 1rem; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-md); }
+.wq-item.go { background: var(--lime-wash); border-color: var(--wash-border); }
+.wq-num { min-width: 44px; height: 44px; padding: 0 .4rem; border-radius: 50%; background: var(--green-800); color: var(--lime-500); display: grid; place-items: center; font-weight: 800; }
+.wq-main { min-width: 0; display: grid; gap: .25rem; }
+.wq-main .top { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.wq-item .btn { min-height: 44px; }
+
+/* ---------- Working hours ---------- */
+.day-row { display: flex; flex-wrap: wrap; gap: .45rem; margin: .4rem 0 0; }
+.day-chk { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 56px; min-height: 44px; padding: 0 .9rem; border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink-soft); font-weight: 700; font-size: .9rem; cursor: pointer; }
+.day-chk:hover { border-color: var(--link); }
+.day-chk input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.day-chk:has(input:checked) { background: var(--lime-500); color: var(--on-lime); border-color: var(--lime-500); }
+.day-chk:has(input:focus-visible) { outline: 3px solid var(--link); outline-offset: 2px; }
+.sch-times { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: .9rem; }
+.sch-times .field, .sch-len .field { margin: 0; }
+.sch-len { margin-top: .8rem; }
+.sch-save { margin-top: 1rem; }
+.sch-save .btn { min-height: 46px; }
+
+/* ---------- Booked slots ---------- */
+.slot-free { font-size: .88rem; color: var(--ink-soft); margin-bottom: .7rem; }
+.slot-row { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .75rem .95rem; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+.slot-row .btn { min-height: 44px; flex: none; }
+
+@media (max-width: 900px) {
+  .dgrid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .req, .wq-item { grid-template-columns: auto minmax(0, 1fr); }
+  .req-actions, .wq-item > .btn { grid-column: 1 / -1; }
+  .req-actions .btn { flex: 1; }
+  .wq-item > .btn { width: 100%; }
+  .online-box { width: 100%; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .online-box { transition: none; }
+}

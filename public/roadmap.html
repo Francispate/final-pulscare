@@ -1,61 +1,68 @@
+<!-- PASTE AS: public/roadmap.html  (replaces the whole file)  S15: the full roadmap page in the new theme. Needs public/css/roadmap.css and the new public/js/ui.js (it holds the roadmap text). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Roadmap | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/roadmap.css">
 </head>
 <body>
 <div id="chrome"></div>
-<main class="wrap">
-  <h1 style="font-size:2.2rem">From this prototype to the finished product</h1>
-  <p class="muted" style="max-width:62ch;margin:.6rem 0 1.6rem">You have just seen the full patient journey working end to end on a local server. This page explains what each step does today, and what we add to make it safe for real patients.</p>
+<main class="wrap rm-wrap">
+  <header class="rd-head">
+    <span class="tag">Roadmap</span>
+    <h1>From this prototype to the finished product</h1>
+    <p class="rd-lead">You have just seen the full patient journey working end to end on a local server. This page explains what each step does today, and what we add to make it safe for real patients.</p>
+  </header>
 
-  <section class="card" style="margin-bottom:1.4rem">
-    <h2>The end result</h2>
-    <p style="max-width:70ch">A patient describes symptoms in their own language, meets an available specialist on encrypted video with live subtitles, pays once the call ends, and instantly receives a signed prescription and a numbered invoice. The doctor sees requests live and writes the prescription during the call. Every step is logged, secured, and works on a phone or a laptop.</p>
+  <section class="card-dark rd-end" aria-labelledby="end-h">
+    <span class="tag">The end result</span>
+    <h2 id="end-h">One visit, from first symptom to signed prescription</h2>
+    <p>A patient describes symptoms in their own language, meets an available specialist on encrypted video with live captions, pays once the call ends, and instantly receives a signed prescription and a numbered invoice. The doctor sees requests live and writes the prescription during the call. Every step is logged, secured, and works on a phone or a laptop.</p>
   </section>
 
-  <section class="card" style="padding:0;overflow-x:auto;margin-bottom:1.4rem">
-    <table class="road-table">
-      <thead><tr><th>Step</th><th class="col-30">Prototype (what you saw)</th><th class="col-100">Added in the final version</th><th>What the user gets</th></tr></thead>
-      <tbody id="steps-body"></tbody>
-    </table>
+  <section class="rd-sec" aria-labelledby="steps-h">
+    <span class="tag">Step by step</span>
+    <h2 id="steps-h">What each step does today</h2>
+    <ol class="rd-steps" id="steps-body"></ol>
   </section>
 
-  <h2 style="margin-bottom:.8rem">Three stages of delivery</h2>
-  <section class="card" style="padding:0;overflow-x:auto;margin-bottom:1.4rem">
-    <table class="road-table">
-      <thead><tr><th>Area</th><th class="col-30">30%: this prototype</th><th class="col-70">70%: complete demo build</th><th class="col-100">100%: production build</th></tr></thead>
-      <tbody>
-        <tr><td>Hosting</td><td class="col-30">Runs on one laptop (localhost)</td><td class="col-70">Online: Netlify + Supabase, shareable link</td><td class="col-100">Separate frontend, backend (Render) and database</td></tr>
-        <tr><td>Database</td><td class="col-30">Local SQLite file</td><td class="col-70">Hosted Postgres with row-level security</td><td class="col-100">Plus audit logs, consent records, retention rules</td></tr>
-        <tr><td>Payments</td><td class="col-30">Simulated gateway, real server checks</td><td class="col-70">Razorpay test mode, UPI QR, admin approval</td><td class="col-100">Razorpay webhook backup, reconciliation</td></tr>
-        <tr><td>Documents</td><td class="col-30">Server PDFs, prototype signature</td><td class="col-70">Invoice PDF in the browser, prescription view</td><td class="col-100">Server-stored, tamper-proof, licensed signature</td></tr>
-        <tr><td>Video</td><td class="col-30">Direct browser-to-browser</td><td class="col-70">Jitsi room with random name</td><td class="col-100">Token-secured rooms (only the two participants)</td></tr>
-        <tr><td>Chat encryption</td><td class="col-30">Per-call keys in the browser tab</td><td class="col-70">Per-appointment keys</td><td class="col-100">Long-term keys, fingerprint check, key backup</td></tr>
-        <tr><td>Languages and captions</td><td class="col-30">Live captions with a history panel. Patients are matched to doctors by spoken language (English, Hindi, Kannada, mixes, or their own)</td><td class="col-70">Interface in 3 languages, doctor language profiles managed by an admin</td><td class="col-100">Managed speech service with a medical word list, captions saved to the record with consent</td></tr>
-        <tr><td>Scheduling</td><td class="col-30">On-demand only</td><td class="col-70">On-demand only</td><td class="col-100">Doctor slots and booking calendar</td></tr>
-        <tr><td>Admin and alerts</td><td class="col-30">Not included</td><td class="col-70">Admin approvals page</td><td class="col-100">Admin dashboard, email and SMS reminders</td></tr>
-        <tr><td>Quality</td><td class="col-30">Manual rehearsal</td><td class="col-70">Manual rehearsal on two laptops</td><td class="col-100">Automated tests and CI, compliance checklist</td></tr>
-      </tbody>
-    </table>
+  <section class="rd-sec" aria-labelledby="stages-h">
+    <span class="tag">Three stages</span>
+    <h2 id="stages-h">Three stages of delivery</h2>
+    <div class="card rd-table-wrap">
+      <table class="rd-table">
+        <thead><tr><th>Area</th><th class="s30"><span class="rm-pct">30%</span>This build</th><th class="s70"><span class="rm-pct">70%</span>Complete demo build</th><th class="s100"><span class="rm-pct">100%</span>Production build</th></tr></thead>
+        <tbody id="areas-body"></tbody>
+      </table>
+    </div>
   </section>
 
-  <section class="card">
-    <h2>Honest limits of this prototype</h2>
-    <p class="small" style="max-width:72ch">Payment is simulated and the signature is ours, so the prescription is marked as a prototype and is not a valid medical document. Chat keys disappear if the browser tab is reloaded. Live captions use the browser's speech recognition, which sends audio to the browser maker, so they are not end-to-end private. The final version addresses each of these.</p>
+  <section class="rd-sec" aria-labelledby="limits-h">
+    <span class="tag">Be aware</span>
+    <h2 id="limits-h">Honest limits of this prototype</h2>
+    <div class="card rd-limits">
+      <p>Payment is simulated and the signature is ours, so the prescription is marked as a prototype and is not a valid medical document. Chat keys live in the browser, so a new device needs the encrypted key backup to read old chats. Live captions use the browser's speech recognition, which sends audio to the browser maker, so they are not end-to-end private. The final version addresses each of these.</p>
+    </div>
   </section>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/ui.js"></script>
 <script>
+  if (!PC.token || !PC.user || PC.user.role !== 'admin') location.replace('/index.html');   // admin only
   PCUI.mount({ step: 0, active: 'roadmap' });
-  document.getElementById('steps-body').innerHTML = PC_STEPS.map((s) =>
-    `<tr><td>${s.name}</td><td class="col-30">${s.proto}</td><td class="col-100">${s.final}</td><td>${s.result}</td></tr>`).join('');
+  document.getElementById('steps-body').innerHTML = PC_STEPS.map((s, i) =>
+    `<li class="card rd-step"><div class="rd-step-h"><span class="rd-num" aria-hidden="true">${i + 1}</span><h3>${s.name}</h3></div>
+      <div class="rd-row rd-now"><b>Works today</b>${s.proto}</div>
+      <div class="rd-row rd-next"><b>Still to come</b>${s.final}</div>
+      <p class="rd-get small"><b>The user gets:</b> ${s.result}</p></li>`).join('');
+  document.getElementById('areas-body').innerHTML = PC_AREAS.map((r) =>
+    `<tr><td>${r[0]}</td><td class="s30">${r[1]}</td><td class="s70">${r[2]}</td><td class="s100">${r[3]}</td></tr>`).join('');
 </script>
 </body>
 </html>

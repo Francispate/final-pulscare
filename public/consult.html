@@ -1,76 +1,132 @@
-<!-- PASTE AS: public/consult.html  (replaces the old file)  Day 10: the doctor can open the patient record inside the consult. -->
-<!-- PASTE AS: public/consult.html  (replaces the old file)  Day 7: chat key backup. Unlock panel in the chat card; old messages decrypt again after a reload. -->
+<!-- PASTE AS: public/consult.html  (replaces the previous file)  S10d: real video-call layout + full screen, dark captions history. Look and layout only; ids and call logic unchanged. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Consultation room | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/consult.css">
 </head>
 <body>
 <div id="chrome"></div>
-<main class="wrap">
-  <div class="row spread" style="margin-bottom:.9rem">
-    <div><h1 style="font-size:1.6rem" id="title">Consultation room</h1><p class="muted small" id="subtitle"></p></div>
-    <span class="badge pending" id="conn">Connecting...</span>
-  </div>
+<main class="wrap room-page">
+  <div class="room" id="room">
+    <header class="room-top">
+      <span class="room-logo" aria-hidden="true">Puls<em>care</em></span>
+      <div class="room-pill">
+        <div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <div class="txt"><h1 id="title">Consultation room</h1><p id="subtitle"></p></div>
+          <span class="small" style="color:var(--lime-500);font-weight:700;white-space:nowrap">Secure consultation</span>
+        </div>
+      </div>
+      <span class="badge pending" id="conn" role="status">Connecting...</span>
+    </header>
 
-  <div class="room">
-    <section>
-      <div class="video-stage">
-        <div class="video-grid" id="video-grid">
-          <!-- Remote person (the other side of the call) -->
-          <div class="tile" id="tile-remote">
-            <video id="remote" autoplay playsinline></video>
-            <div class="waiting" id="waiting"><div>Waiting for the other person to join this room...</div></div>
-            <button class="btn btn-primary hidden" id="tap-play">Tap to start the video</button>
-            <div class="tile-label"><span class="dot" id="remote-dot"></span><b id="remote-name">Other person</b><small id="remote-role"></small></div>
+    <div class="room-body">
+      <section class="stage-col">
+        <div class="stage-wrap" id="stage-wrap">
+        <div class="video-stage">
+          <div class="video-grid" id="video-grid">
+            <!-- Remote person (the other side of the call) -->
+            <div class="tile" id="tile-remote">
+              <video id="remote" autoplay playsinline></video>
+              <div class="waiting" id="waiting"><div>Waiting for the other person to join this room...</div></div>
+              <button class="btn btn-primary hidden" id="tap-play">Tap to start the video</button>
+              <div class="tile-label"><span class="dot" id="remote-dot"></span><b id="remote-name">Other person</b><small id="remote-role"></small></div>
+            </div>
+            <!-- You -->
+            <div class="tile" id="tile-local">
+              <video id="local" class="self" autoplay playsinline muted></video>
+              <div class="cam-off hidden" id="local-avatar"><div class="avatar" id="local-initials">?</div><span>Camera is off</span></div>
+              <div class="tile-label"><span class="dot live"></span><b id="local-name">You</b><small id="local-role"></small><span class="state" id="local-state"></span></div>
+            </div>
           </div>
-          <!-- You -->
-          <div class="tile" id="tile-local">
-            <video id="local" class="self" autoplay playsinline muted></video>
-            <div class="cam-off hidden" id="local-avatar"><div class="avatar" id="local-initials">?</div><span>Camera is off</span></div>
-            <div class="tile-label"><span class="dot live"></span><b id="local-name">You</b><small id="local-role"></small><span class="state" id="local-state"></span></div>
+          <div class="captions" id="captions"></div>
+        </div>
+
+        <div class="dock" role="toolbar" aria-label="Call controls">
+          <button class="dock-btn" id="btn-settings" type="button" aria-label="Call settings" title="Call settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-pop">Call settings</button>
+          <div class="dock-c">
+            <button class="dock-btn" id="btn-mic" type="button" aria-label="Mute microphone" title="Mute microphone">Mute microphone</button>
+            <button class="dock-btn" id="btn-cam" type="button" aria-label="Turn camera off" title="Turn camera off">Turn camera off</button>
+            <button class="dock-btn hidden" id="btn-flip" type="button" aria-label="Use back camera" title="Use back camera">Use back camera</button>
+            <button class="dock-btn" id="btn-dock-cap" type="button" aria-label="Open captions panel" title="Open captions panel">Captions panel</button>
+            <button class="dock-btn" id="btn-dock-tools" type="button" aria-label="Chat, captions and files" title="Chat, captions and files">Chat and tools</button>
+            <button class="dock-btn" id="btn-fs" type="button" aria-label="Full screen" title="Full screen">Full screen</button>
+          </div>
+          <div class="dock-r"><button class="dock-end hidden" id="btn-end" type="button" aria-label="End call" title="End call">End call</button></div>
+
+          <!-- Settings popover: connection check, caption language and size -->
+          <div class="pop hidden" id="settings-pop" role="dialog" aria-label="Call settings">
+            <h2>Call settings</h2>
+            <h3 style="margin-top:.2rem">Connection check</h3>
+            <ul id="diag"></ul>
+            <div class="meters">
+              <div>Your microphone (the bar moves when you speak)<div class="meter"><i id="lvl-me"></i></div></div>
+              <div>Sound from the other person<div class="meter them"><i id="lvl-them"></i></div></div>
+            </div>
+            <h3>Live captions</h3>
+            <div class="field"><label for="speak-lang">I am speaking</label>
+              <select id="speak-lang">
+                <option value="en-IN">English</option><option value="hi-IN">हिन्दी (Hindi)</option><option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
+                <option value="mr-IN">मराठी (Marathi)</option><option value="ta-IN">தமிழ் (Tamil)</option><option value="te-IN">తెలుగు (Telugu)</option>
+                <option value="ml-IN">മലയാളം (Malayalam)</option><option value="bn-IN">বাংলা (Bengali)</option><option value="gu-IN">ગુજરાતી (Gujarati)</option><option value="pa-IN">ਪੰਜਾਬੀ (Punjabi)</option>
+              </select></div>
+            <p class="hint">If you mix languages, choose the one you speak most.</p>
+            <div class="field"><label for="cap-size">Caption size</label>
+              <select id="cap-size"><option value="0.9rem">Small</option><option value="1.05rem" selected>Medium</option><option value="1.4rem">Large</option><option value="1.8rem">Extra large</option></select></div>
+            <span class="media-note" id="media-note" role="status"></span>
           </div>
         </div>
-        <div class="captions" id="captions"></div>
+        </div><!-- /stage-wrap -->
+      </section>
+
+      <!-- S10b: one tabbed side panel. Panels are plain show/hide (class "hidden"); nothing is moved or re-created by the script. -->
+      <aside class="side-col" id="side-col" aria-label="Consultation tools">
+      <div class="side-panel">
+      <button class="tools-close" id="btn-tools-close" type="button" aria-label="Close chat and tools" title="Close">&times;</button>
+      <div class="stabs" id="side-tabs" role="tablist" aria-label="Consultation tools">
+        <button class="stab on" id="stab-chat" type="button" role="tab" aria-selected="true" aria-controls="spanel-chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span>Chat</span><span class="stab-badge hidden" id="chat-unread" aria-hidden="true">0</span></button>
+        <button class="stab" id="stab-captions" type="button" role="tab" aria-selected="false" aria-controls="spanel-captions" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 10.5a2 2 0 1 0 0 3M16 10.5a2 2 0 1 0 0 3"/></svg><span>Captions</span></button>
+        <button class="stab" id="stab-files" type="button" role="tab" aria-selected="false" aria-controls="spanel-files" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5 12.7 20.8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg><span>Files</span></button>
+        <button class="stab hidden" id="stab-record" type="button" role="tab" aria-selected="false" aria-controls="spanel-record" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>Record</span></button>
+        <button class="stab hidden" id="stab-rx" type="button" role="tab" aria-selected="false" aria-controls="spanel-rx" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h6a4 4 0 0 1 0 8H8zM8 3v18M11 11l7 10M18 11l-7 10"/></svg><span>Prescription</span></button>
       </div>
-      <div class="row" id="quick-row" style="margin:.5rem 0">
+
+      <div class="spanel" id="spanel-chat" role="tabpanel" aria-labelledby="stab-chat">
+      <div class="card chat-card">
+        <div class="row spread"><h3>Encrypted chat</h3><span class="small muted">Key check <span class="fp" id="fp">waiting</span></span></div>
+        <div class="card hidden" id="key-panel"></div>
+        <div class="chat-box">
+          <div class="chat-log" id="chat-log"></div>
+          <div class="row" style="margin-top:.5rem;flex-wrap:nowrap">
+            <input id="chat-input" placeholder="Type a message" autocomplete="off" disabled>
+            <button class="btn btn-primary btn-sm" id="chat-send" disabled>Send</button>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top:.5rem">Both people should see the same key check code. Messages are scrambled in the browser before they reach the server.</p>
+        <p class="small muted" style="margin-top:.4rem" id="key-note"></p>
+      </div>
+
+      <div class="card hidden" id="patient-card">
+        <h3>After the call</h3>
+        <p class="small">When the doctor ends the call, you are taken to payment. Your prescription and invoice are created as two separate documents once payment succeeds.</p>
+      </div>
+      </div>
+
+      <div class="spanel hidden" id="spanel-captions" role="tabpanel" aria-labelledby="stab-captions">
+        <div class="row" id="quick-row">
         <input id="quick-caption" placeholder="Type a caption for the other person and press Enter" style="flex:1;min-width:140px" autocomplete="off" aria-label="Type a caption">
         <button class="btn btn-primary btn-sm" id="btn-quick">Send</button>
       </div>
-      <div class="controls">
-        <button class="btn btn-ghost btn-sm" id="btn-mic">Mute microphone</button>
-        <button class="btn btn-ghost btn-sm" id="btn-cam">Turn camera off</button>
-        <button class="btn btn-ghost btn-sm hidden" id="btn-flip">Use back camera</button>
-        <span class="small muted" id="media-note"></span>
-      </div>
-      <div class="card" style="margin-top:.8rem;padding:.8rem 1rem">
-        <div class="small"><b>Connection check</b></div>
-        <ul class="small" id="diag" style="list-style:none;margin-top:.3rem;display:grid;gap:.15rem"></ul>
-        <div class="small" style="margin-top:.6rem;display:grid;gap:.4rem">
-          <div>Your microphone (the bar moves when you speak)<div style="height:8px;border-radius:99px;background:#E3EAEE;overflow:hidden;margin-top:.2rem"><i id="lvl-me" style="display:block;height:100%;width:0;background:var(--teal)"></i></div></div>
-          <div>Sound from the other person<div style="height:8px;border-radius:99px;background:#E3EAEE;overflow:hidden;margin-top:.2rem"><i id="lvl-them" style="display:block;height:100%;width:0;background:var(--blue)"></i></div></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:1rem">
+        <div class="card cap-card">
         <div class="row spread"><h3>Live captions</h3><span class="badge pending" id="rec-state">Off</span></div>
         <p class="small muted" style="margin-bottom:.8rem">Your speech becomes text in your browser and appears on the other person's screen while you speak. Everything said is kept in the <b>Captions panel</b>. Needs Chrome or Edge and internet.</p>
-        <div class="grid two">
-          <div class="field"><label for="speak-lang">I am speaking</label>
-            <select id="speak-lang">
-              <option value="en-IN">English</option><option value="hi-IN">हिन्दी (Hindi)</option><option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
-              <option value="mr-IN">मराठी (Marathi)</option><option value="ta-IN">தமிழ் (Tamil)</option><option value="te-IN">తెలుగు (Telugu)</option>
-              <option value="ml-IN">മലയാളം (Malayalam)</option><option value="bn-IN">বাংলা (Bengali)</option><option value="gu-IN">ગુજરાતી (Gujarati)</option><option value="pa-IN">ਪੰਜਾਬੀ (Punjabi)</option>
-            </select></div>
-          <div class="field"><label for="cap-size">Caption size</label>
-            <select id="cap-size"><option value="0.9rem">Small</option><option value="1.05rem" selected>Medium</option><option value="1.4rem">Large</option><option value="1.8rem">Extra large</option></select></div>
-        </div>
-        <p class="small muted" style="margin:-.2rem 0 .6rem">If you mix languages, choose the one you speak most.</p>
-        <div class="row">
+                <div class="row">
           <button class="btn btn-primary btn-sm" id="btn-speech">Start my live captions</button>
           <button class="btn btn-ghost btn-sm" id="btn-cap-panel">Open captions panel</button>
         </div>
@@ -84,33 +140,23 @@
           <button class="btn btn-ghost btn-sm" id="btn-type">Send</button>
         </div>
         <div class="msg" id="cap-msg"></div>
-        <div class="note-final"><b>Final version:</b> a managed speech service with a medical word list. Captions history can be saved to the patient record with consent.</div>
       </div>
-    </section>
-
-    <aside style="display:grid;gap:1rem">
-      <div class="card">
-        <div class="row spread"><h3>Encrypted chat</h3><span class="small muted">Key check <span class="fp" id="fp">waiting</span></span></div>
-        <div class="card hidden" id="key-panel" style="background:var(--teal-wash);box-shadow:none;margin:.6rem 0"></div>
-        <div class="chat-box">
-          <div class="chat-log" id="chat-log"></div>
-          <div class="row" style="margin-top:.5rem;flex-wrap:nowrap">
-            <input id="chat-input" placeholder="Type a message" autocomplete="off" disabled>
-            <button class="btn btn-primary btn-sm" id="chat-send" disabled>Send</button>
-          </div>
-        </div>
-        <p class="small muted" style="margin-top:.5rem">Both people should see the same key check code. Messages are scrambled in the browser before they reach the server.</p>
-        <p class="small muted" style="margin-top:.4rem" id="key-note"></p>
       </div>
 
+      <div class="spanel hidden" id="spanel-files" role="tabpanel" aria-labelledby="stab-files">
       <div id="att-mount"></div>
+      </div>
 
+      <div class="spanel hidden" id="spanel-record" role="tabpanel" aria-labelledby="stab-record">
       <div class="card hidden" id="rec-card">
         <div class="row spread"><h3>Patient record</h3><button class="btn btn-ghost btn-sm" id="rec-toggle" aria-expanded="false">Open</button></div>
-        <p class="small muted" style="margin-top:.3rem">Allergies, conditions, reports and past visits, entered by the patient. Opening it is logged and the patient is told.</p>
+        <p class="small muted" style="margin-top:.5rem">Allergies, conditions, reports and past visits, entered by the patient. Opening it is logged and the patient is told.</p>
         <div id="rec-body" class="hidden" style="margin-top:.7rem"></div>
       </div>
 
+      </div>
+
+      <div class="spanel hidden" id="spanel-rx" role="tabpanel" aria-labelledby="stab-rx">
       <div class="card hidden" id="rx-card">
         <h3>Prescription (doctor only)</h3>
         <p class="small muted" style="margin-bottom:.7rem">Saved now, released to the patient as a signed PDF after payment.</p>
@@ -120,16 +166,14 @@
         <div class="field" style="margin-top:.8rem"><label for="rx-notes">Instructions for the patient</label><textarea id="rx-notes" placeholder="e.g. Drink plenty of water and rest."></textarea></div>
         <div class="row">
           <button class="btn btn-ghost btn-sm" id="rx-save">Save prescription</button>
-          <button class="btn btn-danger btn-sm" id="btn-end">End call</button>
         </div>
         <div class="msg" id="rx-msg"></div>
       </div>
 
-      <div class="card hidden" id="patient-card">
-        <h3>After the call</h3>
-        <p class="small">When the doctor ends the call, you are taken to payment. Your prescription and invoice are created as two separate documents once payment succeeds.</p>
       </div>
-    </aside>
+      </div>
+      </aside>
+    </div>
   </div>
 </main>
 
@@ -146,6 +190,109 @@
   const apptId = new URLSearchParams(location.search).get('a');
   const isDoctor = PC.user.role === 'doctor';
   const $ = (id) => document.getElementById(id);
+  // S10a: dock buttons keep their text for screen readers; the icon and the red outline come from CSS
+  const dockState = (id, off, label) => { const b = $(id); b.classList.toggle('off', off); b.setAttribute('aria-label', label); b.title = label; };
+  // S10b: side panel tabs. Plain show/hide only; no element is moved or re-created, so other scripts keep finding their ids.
+  const STABS = ['chat', 'captions', 'files', 'record', 'rx'];
+  let unread = 0, curTab = 'chat';
+  let toolsOpen = false, keyPending = false; // S10c: tools live in a drawer opened from the dock
+  const paintUnread = () => {
+    const b = $('chat-unread'); b.textContent = unread > 9 ? '9+' : String(unread); b.classList.toggle('hidden', !unread);
+    $('stab-chat').setAttribute('aria-label', unread ? `Chat, ${unread} unread` : 'Chat');
+    const t = $('btn-dock-tools'), n = unread ? (unread > 9 ? '9+' : String(unread)) : (keyPending && !toolsOpen ? '!' : '');
+    if (n) t.dataset.n = n; else delete t.dataset.n;
+    t.setAttribute('aria-label', unread ? `Chat and tools, ${unread} unread` : keyPending && !toolsOpen ? 'Chat and tools, chat needs unlocking' : 'Chat, captions and files');
+  };  function setSideTab(name, focus) {
+    curTab = name;
+    STABS.forEach((k) => {
+      const on = k === name, t = $('stab-' + k);
+      t.classList.toggle('on', on); t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1;
+      $('spanel-' + k).classList.toggle('hidden', !on);
+    });
+    if (name === 'chat') { unread = 0; paintUnread(); const l = $('chat-log'); l.scrollTop = l.scrollHeight; }
+    if (focus) $('stab-' + name).focus();
+    $('stab-' + name).scrollIntoView({ block: 'nearest', inline: 'nearest' }); // keeps the active tab visible when the bar scrolls sideways
+  }
+  STABS.forEach((k) => { $('stab-' + k).onclick = () => setSideTab(k); });
+  $('side-tabs').addEventListener('keydown', (e) => {
+    const vis = STABS.filter((k) => !$('stab-' + k).classList.contains('hidden'));
+    let i = vis.indexOf(curTab); if (i < 0) return;
+    if (e.key === 'ArrowRight') i = (i + 1) % vis.length;
+    else if (e.key === 'ArrowLeft') i = (i - 1 + vis.length) % vis.length;
+    else if (e.key === 'Home') i = 0;
+    else if (e.key === 'End') i = vis.length - 1;
+    else return;
+    e.preventDefault(); setSideTab(vis[i], true);
+  });
+  // Unread count: messages from the other person that arrive while another tab is open (the chat code is untouched)
+  new MutationObserver((list) => {
+    if (curTab === 'chat' && toolsOpen) return;
+    list.forEach((m) => m.addedNodes.forEach((n) => { if (n.nodeType === 1 && n.classList.contains('bubble') && !n.classList.contains('me') && !n.classList.contains('locked')) unread++; }));
+    paintUnread();
+  }).observe($('chat-log'), { childList: true });
+
+  // S10c: drawer with the tools, room height, full screen
+  const roomEl = $('room'), root = document.documentElement;
+  const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function setTools(on) {
+    toolsOpen = on; roomEl.classList.toggle('tools-open', on);
+    const t = $('btn-dock-tools'); t.classList.toggle('on', on); t.setAttribute('aria-expanded', String(on));
+    if (on && curTab === 'chat') unread = 0;
+    paintUnread();
+    if (on) { const l = $('chat-log'); l.scrollTop = l.scrollHeight; setTimeout(() => $('stab-' + curTab).focus({ preventScroll: true }), calm ? 0 : 260); }
+  }
+  $('btn-dock-tools').setAttribute('aria-controls', 'side-col'); $('btn-dock-tools').setAttribute('aria-expanded', 'false');
+  $('btn-dock-tools').onclick = () => setTools(!toolsOpen);
+  $('btn-tools-close').onclick = () => { setTools(false); $('btn-dock-tools').focus(); };
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !toolsOpen) return;
+    if (document.querySelector('.capp.open, .att-modal') || !$('settings-pop').classList.contains('hidden')) return; // those close first
+    setTools(false); $('btn-dock-tools').focus();
+  });
+  // tell the dock when the chat key still needs unlocking (the unlock box is inside the drawer)
+  new MutationObserver(() => { keyPending = !$('key-panel').classList.contains('hidden'); paintUnread(); }).observe($('key-panel'), { attributes: true, attributeFilter: ['class'] });
+
+  // The room is exactly one screen tall: whatever is left under the nav (all of it in full screen)
+  function sizeRoom() {
+    const top = Math.max(0, Math.round(roomEl.getBoundingClientRect().top + scrollY));
+    root.style.setProperty('--room-h', Math.max(440, innerHeight - top) + 'px');
+    root.style.setProperty('--room-top', top + 'px');
+  }
+  window.addEventListener('resize', sizeRoom); window.addEventListener('orientationchange', () => setTimeout(sizeRoom, 250));
+  sizeRoom(); setTimeout(sizeRoom, 300);
+
+  // Full screen: the real browser full screen when allowed, otherwise the same look inside the page (iPhone, blocked iframes)
+  const fsReq = root.requestFullscreen || root.webkitRequestFullscreen;
+  const fsReal = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  let fsFake = false;
+  // Full screen: the control bar and top strip fade away when nothing moves, and come back on any movement or key press
+  let idleTimer = null;
+  function wake() {
+    roomEl.classList.remove('idle'); clearTimeout(idleTimer);
+    if (!root.classList.contains('in-fs')) return;
+    idleTimer = setTimeout(() => {
+      const busy = toolsOpen || !$('settings-pop').classList.contains('hidden') || roomEl.querySelector('.dock:hover, .room-top:hover') || document.querySelector('.capp.open, .att-modal');
+      if (busy) { wake(); return; } // something is open: keep the controls up
+      roomEl.classList.add('idle');
+    }, 3500);
+  }
+  ['mousemove', 'mousedown', 'touchstart', 'keydown', 'focusin'].forEach((ev) => roomEl.addEventListener(ev, wake, { passive: true }));
+  const fsPaint = () => {
+    const on = fsReal() || fsFake, b = $('btn-fs'), t = on ? 'Exit full screen' : 'Full screen';
+    root.classList.toggle('in-fs', on); b.classList.toggle('on', on); b.textContent = t; b.setAttribute('aria-label', t); b.title = t;
+    if (!on) roomEl.classList.remove('idle'); else wake();
+    setTimeout(sizeRoom, 60); setTimeout(sizeRoom, 350);
+  };
+  async function toggleFs() {
+    if (fsReal()) { try { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} return; }
+    if (fsFake) { fsFake = false; fsPaint(); return; }
+    try { if (!fsReq) throw new Error('no api'); await fsReq.call(root, { navigationUI: 'hide' }); }
+    catch (e) { fsFake = true; fsPaint(); } // browser said no: use the page-only full screen
+  }
+  $('btn-fs').onclick = toggleFs;
+  document.addEventListener('fullscreenchange', fsPaint); document.addEventListener('webkitfullscreenchange', fsPaint);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && fsFake && !toolsOpen) { fsFake = false; fsPaint(); } });
+  $('remote').addEventListener('dblclick', toggleFs); $('tile-remote').addEventListener('dblclick', toggleFs);
   const sock = PC.socket();
   let appt, localStream, pc, pendingIce = [], micOn = true, camOn = true, camReal = false, micReal = false, relay = false, peerHere = false, connTimer = null;
   let iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
@@ -174,6 +321,8 @@
   $('title').textContent = isDoctor ? `Consultation with ${appt.patient_name}` : `Consultation with ${appt.doctor_name}`;
   $('subtitle').textContent = `${appt.department} · Appointment ${appt.id}`;
   (isDoctor ? $('rx-card') : $('patient-card')).classList.remove('hidden');
+  if (isDoctor) $('btn-end').classList.remove('hidden'); // the End call button now lives in the dock (doctor only)
+  if (isDoctor) { $('stab-record').classList.remove('hidden'); $('stab-rx').classList.remove('hidden'); } // S10b: Record and Prescription tabs are doctor only
   if (isDoctor) {
     // The record is only fetched when the doctor presses Open, so "your record was opened" is always true.
     $('rec-card').classList.remove('hidden');
@@ -236,18 +385,29 @@
 
   const css = document.createElement('style');
   css.textContent = `
-  .capp-tab{position:fixed;right:0;top:42%;z-index:85;writing-mode:vertical-rl;background:var(--ink);color:#fff;border:0;border-radius:10px 0 0 10px;padding:.9rem .55rem;font-weight:700;box-shadow:-3px 3px 14px rgba(14,30,45,.25);cursor:pointer}
-  .capp-tab span{background:var(--teal);border-radius:99px;padding:.1rem .4rem;margin-top:.4rem;font-size:.75rem;display:inline-block;writing-mode:horizontal-tb}
-  .capp{position:fixed;top:64px;right:0;bottom:0;width:min(380px,92vw);z-index:95;background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 30px rgba(14,30,45,.2);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .22s ease}
-  .capp.open{transform:none}
-  .capp-head{display:flex;justify-content:space-between;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.7rem .9rem;border-bottom:1px solid var(--line);background:var(--teal-wash)}
-  .capp-list{flex:1;overflow-y:auto;padding:.6rem .9rem;display:grid;align-content:start;gap:.5rem}
-  .capp-item{border-radius:10px;padding:.5rem .65rem;background:#F3F6F8;font-size:.92rem;word-break:break-word}
-  .capp-item.mine{background:var(--teal-wash)}
-  .capp-meta{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted);margin-bottom:.1rem}
-  .capp-empty{color:var(--muted);font-size:.88rem;padding:.4rem 0}
-  .capp-live{min-height:2.4rem;padding:.5rem .9rem;border-top:1px dashed var(--line);font-size:.9rem;font-style:italic;color:var(--ink-soft);background:#FBFCFD}
-  .capp-foot{padding:.5rem .9rem;border-top:1px solid var(--line)}
+  .capp-tab{display:none!important}
+  .capp{position:fixed;top:var(--room-top,64px);right:0;bottom:0;width:min(420px,100vw);z-index:95;display:flex;flex-direction:column;
+    background:#11372C;color:#fff;border-left:1px solid rgba(255,255,255,.14);box-shadow:-12px 0 34px rgba(0,0,0,.45);
+    transform:translateX(105%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
+  .capp.open{transform:none;visibility:visible;transition:transform .25s ease}
+  .capp-head{display:flex;justify-content:space-between;align-items:center;gap:.5rem .6rem;flex-wrap:wrap;padding:.85rem 1rem;background:#001811;border-bottom:1px solid rgba(255,255,255,.1)}
+  .capp-head b{color:#fff;font-size:1rem;font-weight:700;white-space:nowrap}
+  .capp-head .row{flex-wrap:nowrap}
+  .capp-head .btn{padding:.4rem .75rem;min-height:36px}
+  .capp-head .btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)}
+  .capp-head .btn:hover{background:rgba(255,255,255,.14);border-color:#fff;color:#fff}
+  .capp-head .btn:focus-visible{outline:3px solid #8AEB4C;outline-offset:2px}
+  .capp-head #cap-close{background:#8AEB4C;color:#001811;border-color:#8AEB4C}
+  .capp-head #cap-close:hover{background:#6FD13A;border-color:#6FD13A;color:#001811}
+  .capp-list{flex:1;overflow-y:auto;padding:.8rem 1rem;display:grid;align-content:start;gap:.55rem;background:transparent}
+  .capp-item{border-radius:12px;padding:.6rem .75rem;background:#001811;color:#fff;border:1px solid rgba(255,255,255,.06);font-size:.92rem;line-height:1.45;word-break:break-word}
+  .capp-item.mine{background:rgba(138,235,76,.14);border-color:rgba(138,235,76,.3)}
+  .capp-meta{display:flex;justify-content:space-between;gap:.5rem;font-size:.74rem;color:#B7CBC1;margin-bottom:.2rem}
+  .capp-meta b{color:#A5F078}
+  .capp-empty{color:rgba(255,255,255,.7);font-size:.9rem;line-height:1.5;padding:.4rem 0}
+  .capp-live{min-height:2.6rem;padding:.6rem 1rem;border-top:1px dashed rgba(255,255,255,.22);font-size:.9rem;font-style:italic;color:#D6E4DC;background:#001811}
+  .capp-foot{padding:.65rem 1rem;border-top:1px solid rgba(255,255,255,.1);background:#001811;color:rgba(255,255,255,.65);font-size:.8rem}
+  .capp-foot.muted{color:rgba(255,255,255,.65)}
   @media (prefers-reduced-motion:reduce){.capp{transition:none}}
   `;
   document.head.appendChild(css);
@@ -443,7 +603,7 @@
     if (sender) { try { await sender.replaceTrack(nt); } catch (e) { console.warn(e); } }
     facing = used;
     $('local').style.transform = facing === 'user' ? '' : 'none'; // mirror only the front camera preview
-    $('btn-flip').textContent = facing === 'user' ? 'Use back camera' : 'Use front camera';
+    $('btn-flip').textContent = facing === 'user' ? 'Use back camera' : 'Use front camera'; dockState('btn-flip', false, $('btn-flip').textContent);
   }
   if (camReal && navigator.mediaDevices.enumerateDevices) {
     navigator.mediaDevices.enumerateDevices().then((d) => {
@@ -452,9 +612,18 @@
   }
   $('btn-flip').onclick = flipCamera;
 
+  // S10a: dock extras. The captions button reuses the existing "Open captions panel" action; the gear opens the settings popover.
+  $('btn-dock-cap').onclick = () => $('btn-cap-panel').click();
+  const pop = $('settings-pop'), gear = $('btn-settings');
+  const setPop = (on) => { pop.classList.toggle('hidden', !on); gear.setAttribute('aria-expanded', String(on)); if (!on) gear.focus(); };
+  gear.onclick = (e) => { e.stopPropagation(); setPop(pop.classList.contains('hidden')); };
+  pop.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => { if (!pop.classList.contains('hidden')) { pop.classList.add('hidden'); gear.setAttribute('aria-expanded', 'false'); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.classList.contains('hidden')) setPop(false); });
+
   $('tap-play').onclick = () => { $('remote').play(); $('tap-play').classList.add('hidden'); };
-  $('btn-mic').onclick = () => { micOn = !micOn; localStream.getAudioTracks().forEach((t) => (t.enabled = micOn)); $('btn-mic').textContent = micOn ? 'Mute microphone' : 'Unmute microphone'; paintLocalState(); };
-  $('btn-cam').onclick = () => { camOn = !camOn; localStream.getVideoTracks().forEach((t) => (t.enabled = camOn)); $('btn-cam').textContent = camOn ? 'Turn camera off' : 'Turn camera on'; paintLocalState(); };
+  $('btn-mic').onclick = () => { micOn = !micOn; localStream.getAudioTracks().forEach((t) => (t.enabled = micOn)); $('btn-mic').textContent = micOn ? 'Mute microphone' : 'Unmute microphone'; dockState('btn-mic', !micOn, $('btn-mic').textContent); paintLocalState(); };
+  $('btn-cam').onclick = () => { camOn = !camOn; localStream.getVideoTracks().forEach((t) => (t.enabled = camOn)); $('btn-cam').textContent = camOn ? 'Turn camera off' : 'Turn camera on'; dockState('btn-cam', !camOn, $('btn-cam').textContent); paintLocalState(); };
 
   /* ---------- WebRTC (peer to peer, signalled through our server) ---------- */
   function newPC() {

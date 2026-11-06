@@ -73,14 +73,14 @@ async function buildRecord(patientId, viewer) {
   for (const a of appts) {
     const rx = rxBy[a.id];
     const open = canOpen(a);
-    timeline.push({ type: 'consult', at: a.created_at, title: `Consultation with ${name[a.doctor_id] || 'a doctor'}`, sub: dept[a.doctor_id] || '', detail: rx && rx.diagnosis ? rx.diagnosis : '', appointmentId: a.id });
+    timeline.push({ type: 'consult', at: a.created_at, title: `Consultation with ${name[a.doctor_id] || 'a doctor'}`, sub: dept[a.doctor_id] || '', detail: rx && rx.diagnosis ? rx.diagnosis : '', appointmentId: a.id, doctorId: a.doctor_id, doctorName: name[a.doctor_id] || '', dept: dept[a.doctor_id] || '' });
     if (rx) timeline.push({
-      type: 'prescription', at: a.created_at, title: `Prescription ${rx.id}`, sub: name[a.doctor_id] || '', detail: rx.notes || '', appointmentId: a.id,
+      type: 'prescription', at: a.created_at, title: `Prescription ${rx.id}`, sub: name[a.doctor_id] || '', detail: rx.notes || '', appointmentId: a.id, doctorId: a.doctor_id, doctorName: name[a.doctor_id] || '', dept: dept[a.doctor_id] || '',
       medicines: parseItems(rx.items).map((i) => ({ medicine: i.medicine, dose: i.dose, frequency: i.frequency, timing: i.timing, days: i.days })),
       open: open ? { url: `/api/documents/${a.id}/prescription`, name: `${rx.id}.pdf` } : null
     });
     for (const f of rows(atRes).filter((x) => x.appointment_id === a.id)) {
-      timeline.push({ type: 'report', source: 'consult', at: f.created_at, title: f.filename, sub: 'Shared during a consultation', size: f.size, mime: f.mime, open: open ? { url: `/api/attachments/${f.id}/file`, name: f.filename } : null });
+      timeline.push({ type: 'report', source: 'consult', at: f.created_at, title: f.filename, sub: 'Shared during a consultation', doctorId: a.doctor_id, doctorName: name[a.doctor_id] || '', dept: dept[a.doctor_id] || '', size: f.size, mime: f.mime, open: open ? { url: `/api/attachments/${f.id}/file`, name: f.filename } : null });
     }
   }
   for (const r of reps) timeline.push({ type: 'report', source: 'record', at: r.report_date ? `${r.report_date}T00:00:00.000Z` : r.created_at, title: r.title, sub: r.filename, size: r.size, mime: r.mime, open: { url: `/api/records/reports/${r.id}/file`, name: r.filename } });

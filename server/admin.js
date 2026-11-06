@@ -1,6 +1,6 @@
 // PASTE AS: server/admin.js  (new file)
 // Day 11: the admin panel's server side.
-//   An admin can: see counts, list / add / disable / enable doctors, see appointments and payments, read the audit log.
+//   An admin can: see counts, list / add / disable / enable doctors, reset a doctor's password, see appointments and payments, read the audit log.
 //   An admin can NOT read chat messages, medical records, or open anyone's PDFs. Those stay private to patient and doctor.
 // Admin accounts are created only from the command line (scripts/create-admin.js), never through the website.
 const express = require('express');
@@ -192,6 +192,20 @@ function buildAdminRouter(io) {
     audit('DOCTOR_ENABLE', { req, actorId: req.user.id, role: 'admin', detail: { doctorId: id } });
     activity.log('Admin', `${req.user.name} enabled ${doc.full_name} again. They must log in and go online themselves`, 'auth');
     res.json({ disabled: false });
+  }));
+
+  // The admin types a new password for a doctor who forgot theirs. It is saved only as a bcrypt hash and never sent back.
+  r.post('/admin/doctors/:id/reset-password', adminOnly, h(async (req, res) => {
+    const id = String(req.params.id).slice(0, 40);
+    const doc = await db.getDoctor(id);
+    if (!doc) return res.status(404).json({ error: 'Doctor not found.' });
+    const password = (req.body || {}).password;
+    if (typeof password !== 'string' || password.length < 8 || password.length > 72) return res.status(400).json({ error: 'The password must be 8 to 72 characters.' });
+    must(await supabase.from('users').update({ password_hash: bcrypt.hashSync(password, 10) }).eq('id', id).eq('role', 'doctor'));
+    io.in('user:' + id).disconnectSockets(true);                            // an open page of theirs is closed, so they log in with the new password
+    audit('DOCTOR_PASSWORD_RESET', { req, actorId: req.user.id, role: 'admin', detail: { doctorId: id } });
+    activity.log('Admin', `${req.user.name} set a new password for ${doc.full_name} (${id})`, 'auth');
+    res.json({ ok: true, doctor: { id, name: doc.full_name } });
   }));
 
   // ---------- Appointments and payments (who, when, how much; never the content) ----------

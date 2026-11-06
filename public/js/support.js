@@ -1,3 +1,4 @@
+// PASTE AS: public/js/support.js  (replaces the old file)  S10b: consultation room help steps updated for the new room (side tabs, settings gear, dock buttons, End call in the dock). Everything else unchanged.
 // Support: a "Need help?" button on every page. It lists the next steps for the page the user is on,
 // and "Show me" scrolls to the right button and highlights it.
 (function () {
@@ -24,14 +25,16 @@
           { t: 'Are you a doctor?', d: 'Use the Doctor log in box on the right. Pick your name and enter your password.', sel: '#d-select' } ],
         problems: [['I forgot my password', 'For the demo, use demo@pulscare.test with patient123, or create a new account.']] },
     patient: () => ({ title: 'Your care page', steps: [
-      { t: 'Tell us your languages', d: 'Pick English, Hindi, Kannada, or a mix, or type your own. Doctors who speak your way are shown first.', sel: '#lang-card' },
-      { t: 'Check who is online', d: 'Doctors with a green "Online" badge can answer now. Doctors who speak your languages show a green "Speaks your languages" tag.', sel: '#doctor-grid' },
-      { t: 'Press "Consult now"', d: 'This sends your request. The button is grey if the doctor is offline.', sel: '#doctor-grid [data-doc]:not([disabled])' },
-      { t: 'Wait for the doctor to accept', d: 'A yellow box shows a 2 minute countdown. Keep this page open.', sel: '#banner' },
-      { t: 'Press "Join call"', d: 'When the box turns green, press Join call. You can also find it under My consultations.', sel: '#banner .btn, #tab-appts' },
-      { t: 'Find old visits and documents', d: 'Open "My consultations" to download a prescription or invoice.', sel: '#tab-appts' } ],
-      problems: [['All doctors are offline', 'Doctors must press Go Online on their own screen. Try again in a minute, or open the doctor page in a second window.'],
-        ['My request expired', 'Requests last 2 minutes. Press Consult now again.']] }),
+      { t: 'Tell us your languages', d: 'Pick English, Hindi, Kannada, or a mix, or type your own. Doctors who speak your way are shown first with a "Best match" tag.', sel: '#lang-card' },
+      { t: 'Check who is online', d: 'Doctors with a green "Online" badge can take your request now. Use the switch above the cards to show only doctors who speak your language.', sel: '#doctor-grid' },
+      { t: 'Press "Request consult"', d: 'This sends your request. If the doctor is in another call, the button says "Join queue" instead. It is grey when the doctor is offline.', sel: '#doctor-grid [data-doc]:not([disabled])' },
+      { t: 'Or book a time with "Book a slot"', d: 'Choose a day, pick a time, add a reason if you like, then press the green book button. The room opens 10 minutes before your slot.', sel: '#doctor-grid [data-slots]' },
+      { t: 'Wait for the doctor', d: 'A yellow box counts down 2 minutes after a request. If you joined a queue, a dark strip at the top shows your number. Keep this page open.', sel: '#banner' },
+      { t: 'Press "Join now" or "Join call"', d: 'When your turn comes the strip turns green with a Join now button. For accepted requests, press Join call in the green box.', sel: '#banner .btn, #tab-appts' },
+      { t: 'Find old visits and documents', d: 'Open "My consultations" to join a booked visit, pay, or download a prescription or invoice.', sel: '#tab-appts' } ],
+      problems: [['All doctors are offline', 'Doctors must press Go Online on their own screen. Try again in a minute, or book a slot for later.'],
+        ['My request expired', 'Requests last 2 minutes. Press Request consult again.'],
+        ['I missed my turn in the queue', 'Your turn lasts 2 minutes after the alert. Press Join queue again on the doctor card.']] }),
     doctor: () => ({ title: 'Doctor page', steps: [
       { t: 'Turn on "Go online"', d: 'Patients can only send you a request while this switch is on.', sel: '#online-switch' },
       { t: 'Wait for a request', d: 'New requests appear in this box instantly. You do not need to refresh.', sel: '#queue' },
@@ -40,22 +43,23 @@
       problems: [['Patient cannot see me online', 'Check the switch is on. Keep this page open; closing it marks you offline after a few seconds.']] }),
     consult: () => role === 'doctor'
       ? { title: 'Consultation room (doctor)', steps: [
-          { t: 'Check the patient\'s files', d: 'The Medical files box shows reports and X-rays. Select a name to preview, or press Download.', sel: '#att-mount' },
-          { t: 'Talk with the patient', d: 'The patient\'s video is on the right tile. Use the chat if the sound is poor.', sel: '#tile-remote' },
-          { t: 'Fill in the prescription', d: 'Add each medicine with dose, how often, and days.', sel: '#rx-card' },
-          { t: 'Press "Save prescription"', d: 'The patient gets the signed PDF only after payment.', sel: '#rx-save' },
-          { t: 'Press "End call"', d: 'This sends the patient to payment. Save the prescription first.', sel: '#btn-end' } ],
-        problems: [['I cannot see the patient', 'Read the Connection check box under the video. If it says the devices cannot connect, the TURN relay in the .env file must be set, then restart the server.'],
-          ['No sound', 'Press the lock icon in the address bar and allow the microphone. Use headphones to avoid echo.']] }
+          { t: 'Check the patient\'s files', d: 'Open the Files tab on the right. Select a name to preview, or press Download.', sel: '#stab-files' },
+          { t: 'Talk with the patient', d: 'The patient\'s video is the big tile. Use the Chat tab if the sound is poor.', sel: '#tile-remote' },
+          { t: 'Look at the patient record', d: 'Open the Record tab and press Open. The patient is told that you opened it.', sel: '#stab-record' },
+          { t: 'Fill in the prescription', d: 'Open the Prescription tab. Add each medicine with dose, how often, and days.', sel: '#stab-rx' },
+          { t: 'Press \"Save prescription\"', d: 'The patient gets the signed PDF only after payment.', sel: '#stab-rx' },
+          { t: 'Press the red \"End call\" button', d: 'It is at the right end of the buttons under the video. This sends the patient to payment. Your prescription is saved first.', sel: '#btn-end' } ],
+        problems: [['I cannot see the patient', 'Press the sliders button (bottom left of the video) to open Call settings and read the connection check. If it says the devices cannot connect, the TURN relay in the .env file must be set, then restart the server.'],
+          ['No sound', 'Press the lock icon in the address bar and allow the microphone. Use headphones to avoid echo. The sound bars in Call settings show who has a problem.']] }
       : { title: 'Consultation room (patient)', steps: [
-          { t: 'Allow camera and microphone', d: 'When the browser asks, press Allow. If you blocked it, press the lock icon in the address bar and allow both, then reload.', sel: '#diag' },
-          { t: 'Wait for your doctor', d: 'The video appears on the left tile when the doctor joins.', sel: '#tile-remote' },
-          { t: 'Share your reports', d: 'Press "Add a file" in Medical files to upload an X-ray, a photo, or a report. The doctor can open it right away.', sel: '#att-mount' },
-          { t: 'Type to your doctor', d: 'The chat is private. It unlocks when both of you are in the room.', sel: '.chat-box' },
-          { t: 'Want to read what is being said?', d: 'In Live captions, choose the language you speak and press "Start my live captions". Your words appear for the other person as you talk.', sel: '#btn-speech' },
-          { t: 'See everything that was said', d: 'Press the "Captions" tab on the right edge of the screen. The list stays there after captions fade. Press Close to hide it.', sel: '#cap-tab, #btn-cap-panel' },
+          { t: 'Allow camera and microphone', d: 'When the browser asks, press Allow. If you blocked it, press the lock icon in the address bar and allow both, then reload.', sel: '#btn-settings' },
+          { t: 'Wait for your doctor', d: 'The doctor\'s video appears in the large tile when they join.', sel: '#tile-remote' },
+          { t: 'Share your reports', d: 'Open the Files tab on the right and press \"Add a file\" to upload an X-ray, a photo, or a report. The doctor can open it right away.', sel: '#stab-files' },
+          { t: 'Type to your doctor', d: 'The Chat tab is private. It unlocks when both of you are in the room. A red number on the tab means you have unread messages.', sel: '#stab-chat' },
+          { t: 'Want to read what is being said?', d: 'Open the Captions tab, choose the language you speak in Call settings, and press \"Start my live captions\". Your words appear for the other person as you talk.', sel: '#stab-captions' },
+          { t: 'See everything that was said', d: 'Press the captions button under the video, or \"Open captions panel\" in the Captions tab. The list stays there after captions fade.', sel: '#btn-dock-cap' },
           { t: 'Wait for the doctor to end the call', d: 'You will move to the payment page on your own.' } ],
-        problems: [['I cannot see the doctor\'s face', 'Read the Connection check box under the video. Ask the doctor to allow the camera. If you are on different networks, the TURN relay must be set on the server.'],
+        problems: [['I cannot see the doctor\'s face', 'Press the sliders button under the video to open Call settings and read the connection check. Ask the doctor to allow the camera. If you are on different networks, the TURN relay must be set on the server.'],
           ['The upload failed', 'Use JPG, PNG, PDF, DOC or TXT under 10 MB. Photos from a phone are fine.']] },
     payment: () => ({ title: 'Payment', steps: [
       { t: 'Check the amount', d: 'The summary shows the doctor and the fee.', sel: '#content' },
@@ -76,31 +80,32 @@
 
   const css = document.createElement('style');
   css.textContent = `
-  .hlp-fab{position:fixed;left:18px;bottom:18px;z-index:60;background:var(--teal);color:#fff;border:0;border-radius:999px;padding:.65rem 1.1rem;font-weight:700;box-shadow:0 6px 20px rgba(15,139,125,.4);display:flex;align-items:center;gap:.5rem}
-  .hlp-fab:hover{background:var(--teal-dark)}
-  .hlp-fab i{font-style:normal;background:#fff;color:var(--teal-dark);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:.8rem}
-  .hlp-panel{position:fixed;left:18px;bottom:70px;z-index:60;width:min(380px,calc(100vw - 36px));max-height:min(620px,78vh);background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px rgba(14,30,45,.28);display:none;flex-direction:column;overflow:hidden}
+  .hlp-fab{position:fixed;left:18px;bottom:18px;z-index:60;height:44px;background:var(--lime-500,#8AEB4C);color:var(--on-lime,#001811);border:0;border-radius:999px;padding:0 1.1rem 0 .55rem;font-weight:800;font-size:.9rem;box-shadow:0 8px 22px rgba(0,24,17,.3);display:flex;align-items:center;gap:.55rem;transition:background .15s,transform .15s}
+  .hlp-fab:hover{background:var(--lime-600,#6FD13A);transform:translateY(-1px)}
+  .hlp-fab:focus-visible{outline:3px solid var(--link,#1B4A3B);outline-offset:2px}
+  .hlp-fab i{font-style:normal;background:#11372C;color:#8AEB4C;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.95rem;font-weight:800}
+  .hlp-panel{position:fixed;left:18px;bottom:74px;z-index:60;width:min(390px,calc(100vw - 36px));max-height:min(620px,78vh);background:var(--surface,#fff);color:var(--ink,#0B1F18);border:1px solid var(--line,#DCE5DA);border-radius:24px;box-shadow:0 18px 50px rgba(0,24,17,.35);display:none;flex-direction:column;overflow:hidden}
   .hlp-panel.open{display:flex}
-  .hlp-head{padding:.85rem 1rem;background:var(--teal-wash);border-bottom:1px solid #B7DED8}
-  .hlp-head b{font-family:var(--font-display);font-size:1.05rem}
-  .hlp-head p{font-size:.82rem;color:var(--ink-soft)}
-  .hlp-body{overflow-y:auto;padding:.5rem 1rem 1rem}
-  .hlp-steps{list-style:none;counter-reset:s;display:grid;gap:.15rem;margin:.4rem 0 .6rem}
-  .hlp-steps li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:.2rem .6rem;padding:.55rem 0;border-bottom:1px solid #EDF2F4}
-  .hlp-steps li::before{content:counter(s);grid-row:1 / span 3;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-size:.78rem;font-weight:700;display:grid;place-items:center}
+  .hlp-head{padding:1rem 1.15rem;background:#11372C;color:#fff}
+  .hlp-head b{font-family:var(--font-display);font-size:1.1rem;color:#fff}
+  .hlp-head p{font-size:.82rem;color:rgba(255,255,255,.78);margin-top:.15rem}
+  .hlp-body{overflow-y:auto;padding:.5rem 1.15rem 1.1rem}
+  .hlp-steps{list-style:none;counter-reset:s;display:grid;gap:.15rem;margin:.4rem 0 .6rem;padding:0}
+  .hlp-steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:.2rem .7rem;padding:.65rem 0;border-bottom:1px solid var(--row-line,#ECF1EA)}
+  .hlp-steps li::before{content:counter(s);grid-row:1 / span 3;width:26px;height:26px;border-radius:50%;background:#8AEB4C;color:#001811;font-size:.8rem;font-weight:800;display:grid;place-items:center}
   .hlp-steps b{font-size:.92rem}
-  .hlp-steps p{font-size:.85rem;color:var(--ink-soft)}
+  .hlp-steps p{font-size:.85rem;color:var(--ink-soft,#3D4F46)}
   .hlp-show{justify-self:start;margin-top:.15rem}
-  .hlp-sub{font-size:.8rem;font-weight:700;color:var(--muted);margin:.8rem 0 .2rem}
-  .hlp-panel details{border-bottom:1px solid #EDF2F4;padding:.4rem 0;font-size:.86rem}
+  .hlp-sub{font-size:.8rem;font-weight:700;color:var(--muted,#46574F);margin:.8rem 0 .2rem}
+  .hlp-panel details{border-bottom:1px solid var(--row-line,#ECF1EA);padding:.45rem 0;font-size:.86rem}
   .hlp-panel summary{cursor:pointer;font-weight:600}
-  .hlp-panel details p{color:var(--ink-soft);margin-top:.25rem}
-  .hlp-contact{background:var(--paper);border-radius:10px;padding:.7rem .8rem;font-size:.86rem;margin-top:.6rem}
-  .hlp-sos{margin-top:.6rem;width:100%}
-  .pc-spot{outline:4px solid #F0B35A !important;outline-offset:4px;border-radius:8px;animation:pcSpot 1s ease-in-out 4;position:relative;z-index:5}
+  .hlp-panel details p{color:var(--ink-soft,#3D4F46);margin-top:.25rem}
+  .hlp-contact{background:var(--paper,#F3F6F1);border-radius:16px;padding:.75rem .9rem;font-size:.86rem;margin-top:.6rem}
+  .hlp-sos{margin-top:.7rem;width:100%}
+  .pc-spot{outline:4px solid #F0B35A !important;outline-offset:4px;border-radius:12px;animation:pcSpot 1s ease-in-out 4;position:relative;z-index:5}
   @keyframes pcSpot{0%,100%{outline-color:#F0B35A}50%{outline-color:#D93D45}}
-  @media (prefers-reduced-motion:reduce){.pc-spot{animation:none}}
-  .hlp-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:70;background:var(--night);color:#fff;border-radius:10px;padding:.6rem .9rem;font-size:.88rem;max-width:min(420px,90vw)}
+  @media (prefers-reduced-motion:reduce){.pc-spot{animation:none}.hlp-fab{transition:none}}
+  .hlp-toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:70;background:#11372C;color:#fff;border:1px solid rgba(138,235,76,.4);border-radius:16px;padding:.65rem 1rem;font-size:.88rem;max-width:min(420px,90vw);box-shadow:0 10px 30px rgba(0,24,17,.35)}
   `;
   document.head.appendChild(css);
 

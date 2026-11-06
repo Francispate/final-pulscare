@@ -1,21 +1,25 @@
-<!-- PASTE AS: public/record.html  (new file)  Day 10: the patient's medical record. A patient edits their own. A doctor opens it read-only with ?patient=ID. -->
+<!-- PASTE AS: public/record.html  (replaces the old file)  S13: redesigned medical record page. Look and layout only; ids and logic are unchanged. Needs the new public/css/record.css and the new public/js/record.js. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Medical record | Pulscare</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/record.css">
 </head>
 <body>
 <div id="chrome"></div>
-<main class="wrap" style="max-width:900px">
-  <div class="row spread" style="margin-bottom:1rem">
-    <div><h1 style="font-size:1.9rem" id="rec-title">Medical record</h1><p class="muted" id="rec-sub"></p></div>
-    <a class="btn btn-ghost" id="rec-back" href="/index.html">Back</a>
+<main class="wrap rec-wrap">
+  <div class="rec-col">
+    <div class="rec-head">
+      <div><span class="tag">Medical record</span><h1 class="rec-title" id="rec-title">Medical record</h1><p class="rec-sub" id="rec-sub"></p></div>
+      <a class="btn btn-ghost" id="rec-back" href="/index.html">Back</a>
+    </div>
+    <div id="rec"></div>
   </div>
-  <div id="rec"></div>
 </main>
 
 <script src="/socket.io/socket.io.js"></script>

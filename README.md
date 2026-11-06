@@ -1,4 +1,4 @@
-# Pulscare Tele-Health: 30% prototype (local only)
+# Pulscare Tele-Health: prototype (local only)
 
 ## 1. Install (once per laptop)
 1. Install **Node.js 22 LTS or 24** from https://nodejs.org (no Python needed).
